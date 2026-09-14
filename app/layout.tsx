@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { SonarGrid } from "@/components/ui/sonar-grid";
 import "leaflet/dist/leaflet.css";
 import "./globals.css";
 
@@ -44,7 +45,22 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <SonarGrid
+          className="global-sonar-backdrop"
+          aria-hidden="true"
+          spacing={29}
+          dotRadius={1.15}
+          baseOpacity={0.16}
+          color="#26755b"
+          pingEvery={3.8}
+          speed={190}
+          ringWidth={105}
+          amplitude={1.65}
+          maxRings={4}
+          interactionTarget="window"
+          pingArea={[0.08, 0.08, 0.92, 0.92]}
+        />
+        <div className="site-layer">{children}</div>
       </body>
     </html>
   );

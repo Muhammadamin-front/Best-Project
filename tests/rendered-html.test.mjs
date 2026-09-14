@@ -10,6 +10,7 @@ const files = {
   layout: new URL("../app/layout.tsx", import.meta.url),
   map: new URL("../app/components/NearbyMap.tsx", import.meta.url),
   nearbyApi: new URL("../app/api/places/nearby/route.ts", import.meta.url),
+  sonar: new URL("../components/ui/sonar-grid.tsx", import.meta.url),
 };
 
 test("ships the Duodosh product rather than the starter", async () => {
@@ -64,4 +65,18 @@ test("includes privacy-conscious nearby mosque and ablution mapping", async () =
   assert.match(nearbyApi, /"amenity"="place_of_worship"/);
   assert.match(nearbyApi, /"amenity"="ablution"/);
   assert.match(layout, /leaflet\/dist\/leaflet\.css/);
+});
+
+test("uses the interactive sonar grid across the whole site", async () => {
+  const [layout, sonar, css] = await Promise.all([
+    readFile(files.layout, "utf8"),
+    readFile(files.sonar, "utf8"),
+    readFile(files.css, "utf8"),
+  ]);
+  assert.match(layout, /<SonarGrid/);
+  assert.match(layout, /interactionTarget="window"/);
+  assert.match(sonar, /prefers-reduced-motion/);
+  assert.match(sonar, /ResizeObserver/);
+  assert.match(css, /\.global-sonar-backdrop/);
+  assert.match(css, /\.site-layer/);
 });
