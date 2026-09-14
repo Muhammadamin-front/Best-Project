@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { moderateText, mosqueApplicationSchema, prayerRequestSchema, referralActionSchema, reportSchema, safePublicAuthor } from "../lib/product.ts";
+import { commentSchema, moderateText, mosqueApplicationSchema, prayerRequestSchema, referralActionSchema, reportSchema, safePublicAuthor } from "../lib/product.ts";
 import { distanceInMeters, normalizeOverpassPlaces } from "../lib/geo.ts";
 
 test("validates a normal prayer request", () => {
@@ -54,4 +54,10 @@ test("sorts nearby map places by real geographic distance", () => {
   assert.equal(places[0].name, "Sinov masjidi");
   assert.equal(places[1].type, "ablution");
   assert.ok(distanceInMeters(41.3111, 69.2797, 41.312, 69.28) < 150);
+});
+
+test("keeps support comments concise and blocks contact details for review", () => {
+  assert.equal(commentSchema.safeParse({ body: "Alloh shifo bersin, duodamiz." }).success, true);
+  assert.equal(commentSchema.safeParse({ body: "x" }).success, false);
+  assert.equal(moderateText("Menga +998 90 123 45 67 orqali yozing").status, "pending_moderation");
 });

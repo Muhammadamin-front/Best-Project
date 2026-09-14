@@ -11,6 +11,7 @@ const files = {
   map: new URL("../app/components/NearbyMap.tsx", import.meta.url),
   nearbyApi: new URL("../app/api/places/nearby/route.ts", import.meta.url),
   sonar: new URL("../components/ui/sonar-grid.tsx", import.meta.url),
+  commentsApi: new URL("../app/api/requests/[id]/comments/route.ts", import.meta.url),
 };
 
 test("ships the Duodosh product rather than the starter", async () => {
@@ -79,4 +80,18 @@ test("uses the interactive sonar grid across the whole site", async () => {
   assert.match(sonar, /ResizeObserver/);
   assert.match(css, /\.global-sonar-backdrop/);
   assert.match(css, /\.site-layer/);
+});
+
+test("connects prayer cards to moderated support comments", async () => {
+  const [app, commentsApi, requestsApi] = await Promise.all([
+    readFile(files.app, "utf8"),
+    readFile(files.commentsApi, "utf8"),
+    readFile(new URL("../app/api/requests/route.ts", import.meta.url), "utf8"),
+  ]);
+  assert.match(app, /function CommentPanel/);
+  assert.match(app, /\/api\/requests\/\$\{target\.id\}\/comments/);
+  assert.match(app, /commentGuidance/);
+  assert.match(commentsApi, /moderateText\(parsed\.data\.body\)/);
+  assert.match(commentsApi, /support_comment/);
+  assert.match(requestsApi, /commentCount:/);
 });

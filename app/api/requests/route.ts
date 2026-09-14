@@ -1,6 +1,6 @@
 import { and, desc, eq, sql } from "drizzle-orm";
 import { getDb } from "../../../db";
-import { prayerRequests, prayerSaves, prayerSupports, profiles } from "../../../db/schema";
+import { comments, prayerRequests, prayerSaves, prayerSupports, profiles } from "../../../db/schema";
 import { moderateText, prayerRequestSchema, safePublicAuthor } from "../../../lib/product";
 import { requestIdentity, requireProfile, stableUserId } from "../../../lib/server-auth";
 
@@ -26,6 +26,7 @@ export async function GET(request: Request) {
         createdAt: prayerRequests.createdAt,
         displayName: profiles.displayName,
         supportCount: sql<number>`count(${prayerSupports.id})`,
+        commentCount: sql<number>`(select count(*) from ${comments} where ${comments.prayerRequestId} = ${prayerRequests.id} and ${comments.status} = 'published')`,
       })
       .from(prayerRequests)
       .leftJoin(profiles, eq(prayerRequests.authorId, profiles.id))

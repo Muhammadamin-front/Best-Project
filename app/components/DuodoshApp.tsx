@@ -7,6 +7,7 @@ import NearbyMap from "./NearbyMap";
 
 type Language = "uz" | "en" | "ru";
 type View = "feed" | "saved" | "mine" | "mosque" | "notifications" | "profile";
+type SupportComment = { id: string; body: string; author: string | null; createdAt: string };
 
 const copy = {
   uz: {
@@ -21,6 +22,14 @@ const copy = {
     save: "Saqlash",
     saved: "Saqlandi",
     support: "dalda",
+    commentTitle: "Mehrli dalda",
+    commentIntro: "Duo so‘ragan insonni yolg‘iz emasligini his qildiring.",
+    commentPlaceholder: "Samimiy va qisqa dalda yozing…",
+    commentSend: "Yuborish",
+    commentEmpty: "Hali dalda yozilmagan. Birinchi mehrli so‘zni siz qoldiring.",
+    commentLoading: "Daldalar yuklanmoqda…",
+    commentGuidance: "Hukm qilmang, tibbiy yoki diniy fatvo bermang. Telefon va aniq manzil yozmang.",
+    commentPending: "Xabaringiz xavfsizlik tekshiruviga yuborildi.",
     dailyTitle: "Bugungi niyat",
     dailyText: "Kamida uch insonni samimiy duoda eslang. Har bir so‘rov ortida haqiqiy inson bor.",
     progress: "duo qilindi",
@@ -59,6 +68,7 @@ const copy = {
     greeting: "Assalamu alaikum, Aziza",
     subtitle: "Today is a beautiful day to remember someone in prayer.", search: "Search prayer requests…", newRequest: "Ask for prayer",
     filters: ["All", "Unanswered", "Near me", "Health", "Family", "Work & study"], prayer: "I prayed for you", prayed: "Prayer offered", save: "Save", saved: "Saved", support: "supports",
+    commentTitle: "Kind support", commentIntro: "Help the person asking for prayer feel that they are not alone.", commentPlaceholder: "Write a sincere, brief message…", commentSend: "Send", commentEmpty: "No support yet. You can leave the first kind message.", commentLoading: "Loading messages…", commentGuidance: "Do not judge or give medical or religious rulings. Do not share phone numbers or exact addresses.", commentPending: "Your message was sent for a safety review.",
     dailyTitle: "Today’s intention", dailyText: "Remember at least three people sincerely. A real person is behind every request.", progress: "prayers offered",
     mosqueTitle: "Connect with a mosque", mosqueText: "With your consent, a request can be shared with a verified local mosque.", learn: "How does it work?", safety: "A safe community", safetyText: "A private, compassionate space without judgment.",
     composerTitle: "Write a prayer request", composerSubtitle: "Write sincerely. Do not include a phone number, exact address, or document number.", titleLabel: "Short title", titlePlaceholder: "For example: For my mother’s health", bodyLabel: "What should we pray for?", bodyPlaceholder: "Briefly explain your situation…", category: "Category", city: "City (optional)", anonymous: "Share anonymously", anonymousHelp: "Your name will not be shown publicly.", mosqueConsent: "I consent to sharing with a local mosque", emergency: "This is an urgent, highly sensitive situation", emergencyHelp: "Urgent requests are reviewed by a human moderator first.", publish: "Send for review", cancel: "Cancel", gateTitle: "Share compassion first", gateText: "Before a normal request, remember 3 different people in prayer. A comment is never required.", continueEmergency: "Write an urgent request", backFeed: "Return to prayer feed", emptySaved: "Your prayer list is empty", emptySavedText: "Save intentions you want to remember later.", successTitle: "Your request was received", successText: "It will receive a brief safety review before appearing.", resolved: "Alhamdulillah, resolved",
@@ -67,6 +77,7 @@ const copy = {
     nav: { feed: "Лента дуа", saved: "Сохранённые", mine: "Мои просьбы", mosque: "Мечети", notifications: "Уведомления", profile: "Профиль" },
     greeting: "Ассаляму алейкум, Азиза", subtitle: "Сегодня прекрасный день, чтобы вспомнить кого-то в дуа.", search: "Поиск просьб…", newRequest: "Попросить дуа",
     filters: ["Все", "Без ответа", "Рядом", "Здоровье", "Семья", "Работа и учёба"], prayer: "Я сделал дуа", prayed: "Дуа сделано", save: "Сохранить", saved: "Сохранено", support: "поддержки",
+    commentTitle: "Добрая поддержка", commentIntro: "Дайте человеку почувствовать, что он не одинок.", commentPlaceholder: "Напишите короткие искренние слова…", commentSend: "Отправить", commentEmpty: "Поддержки пока нет. Оставьте первое доброе сообщение.", commentLoading: "Загрузка сообщений…", commentGuidance: "Не осуждайте и не давайте медицинских или религиозных заключений. Не указывайте телефон и точный адрес.", commentPending: "Сообщение отправлено на проверку безопасности.",
     dailyTitle: "Намерение дня", dailyText: "Искренне вспомните в дуа хотя бы трёх людей. За каждой просьбой стоит человек.", progress: "дуа сделано", mosqueTitle: "Связаться с мечетью", mosqueText: "С вашего согласия просьба может быть передана проверенной местной мечети.", learn: "Как это работает?", safety: "Безопасное сообщество", safetyText: "Приватное и доброе пространство без осуждения.", composerTitle: "Напишите просьбу о дуа", composerSubtitle: "Не указывайте телефон, точный адрес или номер документа.", titleLabel: "Краткий заголовок", titlePlaceholder: "Например: За здоровье мамы", bodyLabel: "О чём сделать дуа?", bodyPlaceholder: "Кратко опишите ситуацию…", category: "Тема", city: "Город (необязательно)", anonymous: "Опубликовать анонимно", anonymousHelp: "Ваше имя не будет показано.", mosqueConsent: "Согласен передать местной мечети", emergency: "Это срочная и тяжёлая ситуация", emergencyHelp: "Срочные просьбы сначала проверяет модератор.", publish: "Отправить на проверку", cancel: "Отмена", gateTitle: "Сначала поделитесь заботой", gateText: "Перед обычной просьбой вспомните в дуа 3 разных людей. Комментарий не обязателен.", continueEmergency: "Написать срочную просьбу", backFeed: "Вернуться в ленту", emptySaved: "Ваш список дуа пока пуст", emptySavedText: "Сохраните намерения, которые хотите вспомнить позже.", successTitle: "Просьба принята", successText: "Она пройдёт краткую проверку безопасности.", resolved: "Альхамдулиллях, решено",
   },
 } as const;
@@ -88,6 +99,7 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
   const [composerOpen, setComposerOpen] = useState(false);
   const [emergencyOverride, setEmergencyOverride] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [commentTarget, setCommentTarget] = useState<PrayerCard | null>(null);
   const [notice, setNotice] = useState("");
   const t = copy[language];
   const supportToday = requests.filter((request) => request.supported).length;
@@ -103,7 +115,7 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
         setRequests(payload.requests.map((item) => ({
           id: String(item.id), author: String(item.author || "Duodosh a’zosi"), avatar: String(item.author || "D").slice(0, 1).toUpperCase(),
           title: String(item.title), body: String(item.body), category: String(item.category), categoryKey: String(item.category), city: String(item.city || "O‘zbekiston"),
-          time: "Yaqinda", supportCount: Number(item.supportCount || 0), commentCount: 0, supported: Boolean(item.supported), saved: Boolean(item.saved),
+          time: "Yaqinda", supportCount: Number(item.supportCount || 0), commentCount: Number(item.commentCount || 0), supported: Boolean(item.supported), saved: Boolean(item.saved),
           anonymous: Boolean(item.isAnonymous), urgent: Boolean(item.isEmergency),
         })));
       })
@@ -189,7 +201,7 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
             {(view === "feed" || view === "saved" || view === "mine") && <>
               <div className="filter-row" role="tablist" aria-label="Filtrlar">{t.filters.map((label, index) => <button key={label} className={filter === index ? "filter active" : "filter"} onClick={() => setFilter(index)}>{label}</button>)}</div>
               <div className="request-list">
-                {visibleRequests.map((request) => <PrayerRequestCard key={request.id} request={request} t={t} language={language} onSupport={() => toggleSupport(request)} onSave={() => toggleSave(request)} />)}
+                {visibleRequests.map((request) => <PrayerRequestCard key={request.id} request={request} t={t} language={language} onSupport={() => toggleSupport(request)} onSave={() => toggleSave(request)} onComment={() => setCommentTarget(request)} />)}
                 {visibleRequests.length === 0 && <div className="empty-state"><span>♡</span><h2>{t.emptySaved}</h2><p>{t.emptySavedText}</p><button className="soft-button" onClick={() => setView("feed")}>{t.backFeed}</button></div>}
               </div>
             </>}
@@ -216,18 +228,95 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
       </main>
 
       {composerOpen && <Composer t={t} language={language} eligible={supportToday >= 3 || emergencyOverride} emergencyOverride={emergencyOverride} onEmergency={() => setEmergencyOverride(true)} onClose={() => setComposerOpen(false)} onSubmit={submitRequest} submitted={submitted} />}
+      {commentTarget && <CommentPanel key={commentTarget.id} target={commentTarget} t={t} language={language} viewerName={viewerName} initial={initial} onClose={() => setCommentTarget(null)} onPublished={() => setRequests((items) => items.map((item) => item.id === commentTarget.id ? { ...item, commentCount: item.commentCount + 1 } : item))} />}
       {notice && <div className="toast" role="status"><span>✓</span>{notice}</div>}
     </div>
   );
 }
 
-function PrayerRequestCard({ request, t, language, onSupport, onSave }: { request: PrayerCard; t: typeof copy[Language]; language: Language; onSupport: () => void; onSave: () => void }) {
+function PrayerRequestCard({ request, t, language, onSupport, onSave, onComment }: { request: PrayerCard; t: typeof copy[Language]; language: Language; onSupport: () => void; onSave: () => void; onComment: () => void }) {
   return <article className="request-card">
     <div className="request-head"><span className={`avatar ${request.anonymous ? "sage" : "amber"}`}>{request.avatar}</span><div><b>{request.author}</b><p><span>{request.city}</span><i>•</i><span>{request.time}</span></p></div><button aria-label="Ko‘proq">•••</button></div>
     <div className="request-body"><div className="badges"><span className={`category ${request.categoryKey}`}>{categoryLabels[request.categoryKey]?.[language] || request.category}</span>{request.urgent && <span className="urgent">Moderator tekshiruvida</span>}</div><h2>{request.title}</h2><p>{request.body}</p></div>
     <div className="request-stats"><span><b>{request.supportCount}</b> inson duoda esladi</span><span>{request.commentCount} {t.support}</span></div>
-    <div className="request-actions"><button className={request.supported ? "pray active" : "pray"} onClick={onSupport}><span>{request.supported ? "✓" : "☾"}</span>{request.supported ? t.prayed : t.prayer}</button><button className={request.saved ? "save active" : "save"} onClick={onSave}><span>{request.saved ? "♥" : "♡"}</span>{request.saved ? t.saved : t.save}</button><button className="comment" aria-label="Dalda yozish"><span>◯</span>Dalda yozish</button></div>
+    <div className="request-actions"><button className={request.supported ? "pray active" : "pray"} onClick={onSupport}><span>{request.supported ? "✓" : "☾"}</span>{request.supported ? t.prayed : t.prayer}</button><button className={request.saved ? "save active" : "save"} onClick={onSave}><span>{request.saved ? "♥" : "♡"}</span>{request.saved ? t.saved : t.save}</button><button className="comment" aria-label={t.commentTitle} onClick={onComment}><span>◯</span>{t.commentTitle}</button></div>
   </article>;
+}
+
+function CommentPanel({ target, t, language, viewerName, initial, onClose, onPublished }: { target: PrayerCard; t: typeof copy[Language]; language: Language; viewerName: string; initial: string; onClose: () => void; onPublished: () => void }) {
+  const [comments, setComments] = useState<SupportComment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
+  const [message, setMessage] = useState("");
+  const [draft, setDraft] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    void fetch(`/api/requests/${target.id}/comments`)
+      .then(async (response) => response.ok ? response.json() : Promise.reject(new Error("Comments unavailable")))
+      .then((payload: { comments?: SupportComment[] }) => {
+        if (active) setComments(payload.comments ?? []);
+      })
+      .catch(() => active && setMessage("Daldalarni yuklab bo‘lmadi. Qayta urinib ko‘ring."))
+      .finally(() => active && setLoading(false));
+    return () => { active = false; };
+  }, [target.id]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => event.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onClose]);
+
+  async function submitComment(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const body = String(new FormData(form).get("body") || "").trim();
+    if (body.length < 2) return;
+    setSending(true);
+    setMessage("");
+    try {
+      const response = await fetch(`/api/requests/${target.id}/comments`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ body }) });
+      const result = await response.json() as { id?: string; status?: string; author?: string; body?: string; createdAt?: string; error?: string };
+      if (!response.ok) throw new Error(result.error || "Comment failed");
+      if (result.status === "published" && result.id) {
+        setComments((items) => [...items, { id: result.id as string, body: result.body || body, author: result.author || viewerName, createdAt: result.createdAt || new Date().toISOString() }]);
+        onPublished();
+        form.reset();
+        setDraft("");
+        setMessage(language === "uz" ? "Daldangiz yetib bordi. Alloh rozi bo‘lsin." : language === "en" ? "Your support was delivered. Thank you." : "Ваши слова поддержки отправлены.");
+      } else {
+        form.reset();
+        setDraft("");
+        setMessage(t.commentPending);
+      }
+    } catch (error) {
+      const signedOut = error instanceof Error && /Authentication required/i.test(error.message);
+      setMessage(signedOut ? "Dalda yozish uchun ChatGPT hisobingiz bilan kiring." : "Xabar yuborilmadi. Birozdan keyin qayta urinib ko‘ring.");
+    } finally {
+      setSending(false);
+    }
+  }
+
+  const locale = language === "uz" ? "uz-UZ" : language === "ru" ? "ru-RU" : "en-US";
+  return <div className="comment-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+    <aside className="comment-panel" role="dialog" aria-modal="true" aria-labelledby="comment-panel-title">
+      <header><div><p className="eyebrow">{target.category}</p><h2 id="comment-panel-title">{t.commentTitle}</h2></div><button onClick={onClose} aria-label="Yopish">×</button></header>
+      <div className="comment-request"><span className={`avatar ${target.anonymous ? "sage" : "amber"}`}>{target.avatar}</span><div><b>{target.title}</b><p>{target.author} · {target.city}</p></div></div>
+      <p className="comment-intro">{t.commentIntro}</p>
+      <div className="comment-stream" aria-live="polite">
+        {loading && <div className="comment-empty">{t.commentLoading}</div>}
+        {!loading && comments.length === 0 && <div className="comment-empty"><span>♡</span><p>{t.commentEmpty}</p></div>}
+        {comments.map((comment) => <article key={comment.id}><span className="avatar sage">{(comment.author || "D").slice(0, 1).toUpperCase()}</span><div><div><b>{comment.author || "Duodosh a’zosi"}</b><time>{new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(comment.createdAt))}</time></div><p>{comment.body}</p></div></article>)}
+      </div>
+      <form className="comment-form" onSubmit={submitComment}>
+        <div className="comment-author"><span className="avatar coral">{initial}</span><span><b>{viewerName}</b><small>{t.commentGuidance}</small></span></div>
+        <textarea name="body" minLength={2} maxLength={600} required rows={3} value={draft} onChange={(event) => setDraft(event.target.value)} placeholder={t.commentPlaceholder} aria-label={t.commentPlaceholder} />
+        {message && <p className="comment-message" role="status">{message}</p>}
+        <div><span><b>{draft.length}</b> / 600</span><button className="primary-button" type="submit" disabled={sending || draft.trim().length < 2}>{sending ? "…" : t.commentSend}<span>→</span></button></div>
+      </form>
+    </aside>
+  </div>;
 }
 
 function Composer({ t, language, eligible, emergencyOverride, onEmergency, onClose, onSubmit, submitted }: { t: typeof copy[Language]; language: Language; eligible: boolean; emergencyOverride: boolean; onEmergency: () => void; onClose: () => void; onSubmit: (event: FormEvent<HTMLFormElement>) => void; submitted: boolean }) {

@@ -24,13 +24,14 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const { id } = await context.params;
     const moderation = moderateText(parsed.data.body);
     const db = getDb();
+    const [target] = await db.select({ authorId: prayerRequests.authorId, title: prayerRequests.title, status: prayerRequests.status }).from(prayerRequests).where(eq(prayerRequests.id, id)).limit(1);
+    if (!target || target.status !== "published") return Response.json({ error: "Prayer request not found" }, { status: 404 });
     const commentId = `cmt_${crypto.randomUUID()}`;
     await db.insert(comments).values({ id: commentId, prayerRequestId: id, authorId: profile.id, body: parsed.data.body, status: moderation.status });
-    const [target] = await db.select({ authorId: prayerRequests.authorId, title: prayerRequests.title }).from(prayerRequests).where(eq(prayerRequests.id, id)).limit(1);
     if (moderation.status === "published" && target?.authorId && target.authorId !== profile.id) {
       await db.insert(notifications).values({ id: `ntf_${crypto.randomUUID()}`, userId: target.authorId, type: "support_comment", title: "Yangi dalda", body: `“${target.title}” so‘rovingizga mehrli xabar yozildi.` });
     }
-    return Response.json({ id: commentId, status: moderation.status }, { status: 201 });
+    return Response.json({ id: commentId, status: moderation.status, author: profile.displayName, body: parsed.data.body, createdAt: new Date().toISOString() }, { status: 201 });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Unexpected error" }, { status: 500 });
   }
