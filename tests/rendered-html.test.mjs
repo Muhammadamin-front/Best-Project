@@ -5,11 +5,13 @@ import test from "node:test";
 const files = {
   page: new URL("../app/page.tsx", import.meta.url),
   app: new URL("../app/components/DuodoshApp.tsx", import.meta.url),
+  componentsConfig: new URL("../components.json", import.meta.url),
   demo: new URL("../lib/demo-data.ts", import.meta.url),
   css: new URL("../app/globals.css", import.meta.url),
   layout: new URL("../app/layout.tsx", import.meta.url),
   map: new URL("../app/components/NearbyMap.tsx", import.meta.url),
   nearbyApi: new URL("../app/api/places/nearby/route.ts", import.meta.url),
+  aurora: new URL("../components/ui/aurora-background.tsx", import.meta.url),
   sonar: new URL("../components/ui/sonar-grid.tsx", import.meta.url),
   commentsApi: new URL("../app/api/requests/[id]/comments/route.ts", import.meta.url),
   notificationsApi: new URL("../app/api/notifications/route.ts", import.meta.url),
@@ -28,6 +30,14 @@ test("ships the Duodosh product rather than the starter", async () => {
   assert.match(demo, /Onamning operatsiyasi uchun duo qiling/);
   assert.match(app, /Masjid bilan bog‘lanish/);
   assert.doesNotMatch(`${page}${app}${layout}`, /codex-preview|react-loading-skeleton|Your site is taking shape/i);
+});
+
+test("keeps shadcn paths aligned with the existing Tailwind 4 project", async () => {
+  const config = JSON.parse(await readFile(files.componentsConfig, "utf8"));
+  assert.equal(config.tsx, true);
+  assert.equal(config.tailwind.css, "app/globals.css");
+  assert.equal(config.aliases.ui, "@/components/ui");
+  assert.equal(config.aliases.utils, "@/lib/utils");
 });
 
 test("includes privacy, localization, and accessibility affordances", async () => {
@@ -81,6 +91,23 @@ test("uses the interactive sonar grid across the whole site", async () => {
   assert.match(sonar, /ResizeObserver/);
   assert.match(css, /\.global-sonar-backdrop/);
   assert.match(css, /\.site-layer/);
+});
+
+test("layers a reduced-motion-friendly aurora behind the sonar grid", async () => {
+  const [layout, aurora, css] = await Promise.all([
+    readFile(files.layout, "utf8"),
+    readFile(files.aurora, "utf8"),
+    readFile(files.css, "utf8"),
+  ]);
+  assert.match(layout, /<AuroraBackground/);
+  assert.match(layout, /global-aurora-backdrop/);
+  assert.match(aurora, /showRadialGradient/);
+  assert.match(aurora, /from "framer-motion"/);
+  assert.match(aurora, /useReducedMotion/);
+  assert.match(aurora, /aurora-background__lights--radial/);
+  assert.match(css, /@keyframes aurora/);
+  assert.match(css, /\.global-sonar-backdrop[^}]*z-index: 1/);
+  assert.match(css, /prefers-reduced-motion/);
 });
 
 test("connects prayer cards to moderated support comments", async () => {

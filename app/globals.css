@@ -19,9 +19,37 @@ button, input, textarea, select { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 button { cursor: pointer; }
 
-.global-sonar-backdrop { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.global-aurora-backdrop { position: fixed; inset: 0; z-index: 0; width: 100%; min-height: 100vh; pointer-events: none; background: linear-gradient(145deg, #f8fbf8, #f4f7f4 52%, #faf6ed); }
+.aurora-background__overflow { position: absolute; inset: 0; overflow: hidden; }
+.aurora-background__lights {
+  position: absolute;
+  inset: -12%;
+  opacity: .48;
+  background-image:
+    repeating-linear-gradient(100deg, rgba(255,255,255,.92) 0%, rgba(255,255,255,.92) 7%, transparent 10%, transparent 12%, rgba(255,255,255,.92) 16%),
+    repeating-linear-gradient(100deg, rgba(23,107,80,.62) 10%, rgba(103,165,140,.5) 15%, rgba(239,214,156,.62) 20%, rgba(239,180,159,.42) 25%, rgba(62,141,112,.58) 30%);
+  background-size: 300% 200%, 200% 100%;
+  background-position: 50% 50%, 50% 50%;
+  filter: blur(20px) saturate(.9);
+  mix-blend-mode: multiply;
+  animation: aurora 60s linear infinite;
+  will-change: background-position;
+}
+.aurora-background__lights::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 18% 80%, rgba(23,107,80,.22), transparent 34%), radial-gradient(circle at 72% 66%, rgba(231,143,114,.2), transparent 29%);
+  mix-blend-mode: soft-light;
+}
+.aurora-background__lights--radial { -webkit-mask-image: radial-gradient(ellipse at 100% 0%, #000 8%, transparent 72%); mask-image: radial-gradient(ellipse at 100% 0%, #000 8%, transparent 72%); }
+@keyframes aurora {
+  from { background-position: 50% 50%, 50% 50%; }
+  to { background-position: 350% 50%, 350% 50%; }
+}
+.global-sonar-backdrop { position: fixed; inset: 0; z-index: 1; overflow: hidden; pointer-events: none; }
 .sonar-grid-canvas { width: 100%; height: 100%; position: absolute; inset: 0; pointer-events: none; }
-.site-layer { min-height: 100vh; position: relative; z-index: 1; }
+.site-layer { min-height: 100vh; position: relative; z-index: 2; }
 
 .app-shell { min-height: 100vh; display: grid; grid-template-columns: 244px minmax(0, 1fr); }
 .sidebar { position: fixed; inset: 0 auto 0 0; width: 244px; z-index: 20; padding: 31px 20px 22px; display: flex; flex-direction: column; border-right: 1px solid rgba(211, 222, 215, .82); background: rgba(250, 252, 250, .88); backdrop-filter: blur(15px); }

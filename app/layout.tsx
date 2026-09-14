@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { AuroraBackground } from "@/components/ui/aurora-background";
 import { SonarGrid } from "@/components/ui/sonar-grid";
 import "leaflet/dist/leaflet.css";
 import "./globals.css";
@@ -45,6 +46,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <AuroraBackground
+          className="global-aurora-backdrop"
+          aria-hidden="true"
+        >
+          <span />
+        </AuroraBackground>
         <SonarGrid
           className="global-sonar-backdrop"
           aria-hidden="true"
