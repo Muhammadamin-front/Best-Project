@@ -27,6 +27,12 @@ export const prayerRequestSchema = z.object({
 export type PrayerRequestInput = z.infer<typeof prayerRequestSchema>;
 
 export const commentSchema = z.object({ body: z.string().trim().min(2).max(600) });
+export const profileUpdateSchema = z.object({
+  displayName: z.string().trim().min(2).max(80),
+  city: z.string().trim().max(80).default(""),
+  country: z.string().trim().max(80).default("O‘zbekiston"),
+  preferredLanguage: z.enum(["uz", "en", "ru"]),
+});
 export const reportSchema = z.object({
   targetType: z.enum(["prayer_request", "comment"]),
   targetId: z.string().min(3).max(120),

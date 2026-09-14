@@ -11,6 +11,7 @@ Duodosh is a privacy-first Muslim mutual-support platform for sharing prayer req
 - Uzbek, English, and Russian UI structure
 - Mosque, notification, profile, and privacy surfaces
 - Persisted saves, comments, reports, and in-app notifications
+- Editable profiles with durable city and language preferences plus live personal statistics
 - Protected moderator queue with audited actions
 - Consent-enforced mosque referral workflow and representative dashboard
 - High-risk and personal-information moderation fallback

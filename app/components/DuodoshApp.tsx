@@ -9,6 +9,8 @@ type Language = "uz" | "en" | "ru";
 type View = "feed" | "saved" | "mine" | "mosque" | "notifications" | "profile";
 type SupportComment = { id: string; body: string; author: string | null; createdAt: string };
 type NotificationItem = { id: string; type: string; title: string; body: string; readAt: string | null; createdAt: string };
+type ProfileData = { id?: string; displayName: string; city: string | null; country: string | null; preferredLanguage: Language; role?: string };
+type ProfileStats = { supportToday: number; saved: number; activeRequests: number; unreadNotifications: number };
 
 const copy = {
   uz: {
@@ -100,6 +102,8 @@ function Mark({ size = "normal" }: { size?: "normal" | "small" }) {
 
 export default function DuodoshApp({ viewerName }: { viewerName: string }) {
   const [language, setLanguage] = useState<Language>("uz");
+  const [profile, setProfile] = useState<ProfileData>({ displayName: viewerName, city: null, country: "O‘zbekiston", preferredLanguage: "uz" });
+  const [profileStats, setProfileStats] = useState<ProfileStats | null>(null);
   const [view, setView] = useState<View>("feed");
   const [requests, setRequests] = useState<PrayerCard[]>(demoRequests);
   const [filter, setFilter] = useState(0);
@@ -112,8 +116,9 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
   const [notice, setNotice] = useState("");
   const t = copy[language];
   const requestView = view === "feed" || view === "saved" || view === "mine";
-  const supportToday = requests.filter((request) => request.supported).length;
-  const firstName = viewerName.trim().split(/\s+/)[0] || "Duodosh";
+  const supportToday = profileStats?.supportToday ?? requests.filter((request) => request.supported).length;
+  const displayName = profile.displayName || viewerName;
+  const firstName = displayName.trim().split(/\s+/)[0] || "Duodosh";
   const initial = firstName.slice(0, 1).toUpperCase();
   const todayLabel = new Intl.DateTimeFormat(language === "uz" ? "uz-UZ" : language === "ru" ? "ru-RU" : "en-US", { day: "numeric", month: "long", timeZone: "Asia/Tashkent" }).format(new Date());
 
@@ -138,8 +143,16 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
     let active = true;
     void fetch("/api/me")
       .then(async (response) => response.ok ? response.json() : Promise.reject(new Error("Profile unavailable")))
-      .then((payload: { stats?: { unreadNotifications?: number } }) => {
-        if (active) setUnreadNotifications(Number(payload.stats?.unreadNotifications ?? 0));
+      .then((payload: { profile?: ProfileData; stats?: ProfileStats }) => {
+        if (!active) return;
+        if (payload.profile) {
+          setProfile(payload.profile);
+          if (["uz", "en", "ru"].includes(payload.profile.preferredLanguage)) setLanguage(payload.profile.preferredLanguage);
+        }
+        if (payload.stats) {
+          setProfileStats(payload.stats);
+          setUnreadNotifications(Number(payload.stats.unreadNotifications ?? 0));
+        }
       })
       .catch(() => undefined);
     return () => { active = false; };
@@ -159,6 +172,7 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
 
   function toggleSupport(target: PrayerCard) {
     setRequests((items) => items.map((item) => item.id === target.id ? { ...item, supported: !item.supported, supportCount: item.supportCount + (item.supported ? -1 : 1) } : item));
+    setProfileStats((stats) => stats ? { ...stats, supportToday: Math.max(0, stats.supportToday + (target.supported ? -1 : 1)) } : stats);
     setNotice(target.supported ? "Duo belgisi olib tashlandi" : "Alloh duoyingizni qabul qilsin");
     window.setTimeout(() => setNotice(""), 2400);
     if (!target.id.startsWith("local-")) void fetch(`/api/requests/${target.id}/support`, { method: "POST" });
@@ -166,6 +180,7 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
 
   function toggleSave(target: PrayerCard) {
     setRequests((items) => items.map((item) => item.id === target.id ? { ...item, saved: !item.saved } : item));
+    setProfileStats((stats) => stats ? { ...stats, saved: Math.max(0, stats.saved + (target.saved ? -1 : 1)) } : stats);
     if (!target.id.startsWith("local-")) void fetch(`/api/requests/${target.id}/save`, { method: "POST" });
   }
 
@@ -185,7 +200,10 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
     void fetch("/api/requests", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) })
       .then(async (response) => response.ok ? response.json() : Promise.reject(new Error("Create failed")))
       .then((result: { id?: string; status?: string }) => {
-        if (result.id) setRequests((items) => items.map((item) => item.id === localId ? { ...item, id: result.id as string, urgent: result.status === "pending_moderation" } : item));
+        if (result.id) {
+          setRequests((items) => items.map((item) => item.id === localId ? { ...item, id: result.id as string, urgent: result.status === "pending_moderation" } : item));
+          if (result.status === "published") setProfileStats((stats) => stats ? { ...stats, activeRequests: stats.activeRequests + 1 } : stats);
+        }
       })
       .catch(() => undefined);
   }
@@ -206,7 +224,7 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
           <strong>{t.dailyTitle}</strong>
           <p>“Bir-biringizni duoda unutmang.”</p>
         </div>
-        <button className="user-card" onClick={() => setView("profile")}><span className="avatar coral">{initial}</span><span><b>{viewerName}</b><small>Toshkent, O‘zbekiston</small></span><span>•••</span></button>
+        <button className="user-card" onClick={() => setView("profile")}><span className="avatar coral">{initial}</span><span><b>{displayName}</b><small>{[profile.city, profile.country].filter(Boolean).join(", ") || "O‘zbekiston"}</small></span><span>•••</span></button>
       </aside>
 
       <main className={requestView ? "main" : "main section-main"} id="top">
@@ -229,7 +247,7 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
             </>}
             {view === "mosque" && <MosqueView />}
             {view === "notifications" && <NotificationsView t={t} language={language} onUnreadChange={setUnreadNotifications} />}
-            {view === "profile" && <ProfileView viewerName={viewerName} initial={initial} />}
+            {view === "profile" && <ProfileView profile={profile} stats={profileStats} initial={initial} onSaved={(next) => { setProfile(next); setLanguage(next.preferredLanguage); setNotice("Profil yangilandi"); window.setTimeout(() => setNotice(""), 2400); }} />}
           </section>
 
           <aside className="right-rail">
@@ -250,7 +268,7 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
       </main>
 
       {composerOpen && <Composer t={t} language={language} eligible={supportToday >= 3 || emergencyOverride} emergencyOverride={emergencyOverride} onEmergency={() => setEmergencyOverride(true)} onClose={() => setComposerOpen(false)} onSubmit={submitRequest} submitted={submitted} />}
-      {commentTarget && <CommentPanel key={commentTarget.id} target={commentTarget} t={t} language={language} viewerName={viewerName} initial={initial} onClose={() => setCommentTarget(null)} onPublished={() => setRequests((items) => items.map((item) => item.id === commentTarget.id ? { ...item, commentCount: item.commentCount + 1 } : item))} />}
+      {commentTarget && <CommentPanel key={commentTarget.id} target={commentTarget} t={t} language={language} viewerName={displayName} initial={initial} onClose={() => setCommentTarget(null)} onPublished={() => setRequests((items) => items.map((item) => item.id === commentTarget.id ? { ...item, commentCount: item.commentCount + 1 } : item))} />}
       {notice && <div className="toast" role="status"><span>✓</span>{notice}</div>}
     </div>
   );
@@ -421,6 +439,50 @@ function NotificationsView({ t, language, onUnreadChange }: { t: typeof copy[Lan
   </div>;
 }
 
-function ProfileView({ viewerName, initial }: { viewerName: string; initial: string }) {
-  return <div className="feature-view"><div className="profile-header"><span className="avatar coral large">{initial}</span><div><h2>{viewerName}</h2><p>Toshkent, O‘zbekiston · O‘zbekcha</p></div><button className="soft-button">Tahrirlash</button></div><div className="profile-stats"><article><b>18</b><span>duoda eslangan inson</span></article><article><b>4</b><span>saqlangan niyat</span></article><article><b>2</b><span>faol so‘rov</span></article></div><div className="settings-card"><h3>Maxfiylik va xavfsizlik</h3><button>Standart anonimlik <span>Yoqilgan ›</span></button><button>Joylashuv ko‘rinishi <span>Faqat shahar ›</span></button><button>Bloklangan foydalanuvchilar <span>0 ›</span></button><button className="danger">Hisobni o‘chirish <span>›</span></button></div></div>;
+function ProfileView({ profile, stats, initial, onSaved }: { profile: ProfileData; stats: ProfileStats | null; initial: string; onSaved: (profile: ProfileData) => void }) {
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+  const languageName = profile.preferredLanguage === "en" ? "English" : profile.preferredLanguage === "ru" ? "Русский" : "O‘zbekcha";
+
+  async function saveProfile(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSaving(true);
+    setMessage("");
+    const form = new FormData(event.currentTarget);
+    const payload = {
+      displayName: String(form.get("displayName") || ""),
+      city: String(form.get("city") || ""),
+      country: String(form.get("country") || "O‘zbekiston"),
+      preferredLanguage: String(form.get("preferredLanguage") || "uz") as Language,
+    };
+    try {
+      const response = await fetch("/api/me", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
+      const result = await response.json() as { profile?: ProfileData; error?: string };
+      if (!response.ok || !result.profile) throw new Error(result.error || "Profile update failed");
+      onSaved(result.profile);
+      setEditing(false);
+    } catch (error) {
+      setMessage(error instanceof Error && /Authentication required/i.test(error.message) ? "Profilni saqlash uchun ChatGPT hisobingiz bilan kiring." : "Profilni saqlab bo‘lmadi. Birozdan keyin qayta urinib ko‘ring.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return <div className="feature-view profile-view">
+    <div className="profile-header"><span className="avatar coral large">{initial}</span><div><h2>{profile.displayName}</h2><p>{[profile.city, profile.country].filter(Boolean).join(", ") || "Joylashuv ko‘rsatilmagan"} · {languageName}</p></div><button className="soft-button" onClick={() => { setEditing((value) => !value); setMessage(""); }}>{editing ? "Yopish" : "Tahrirlash"}</button></div>
+    {editing && <form className="profile-editor" onSubmit={saveProfile}>
+      <div><p className="eyebrow">SHAXSIY SOZLAMALAR</p><h3>Profil ma’lumotlari</h3><p>Faqat ismingiz va shahar darajasidagi joylashuv ko‘rsatiladi. Anonim so‘rovlarda ismingiz yashiriladi.</p></div>
+      <div className="profile-fields">
+        <label>Ko‘rinadigan ism<input name="displayName" minLength={2} maxLength={80} required defaultValue={profile.displayName} /></label>
+        <label>Shahar<input name="city" maxLength={80} defaultValue={profile.city || ""} placeholder="Toshkent" /></label>
+        <label>Mamlakat<input name="country" maxLength={80} defaultValue={profile.country || "O‘zbekiston"} /></label>
+        <label>Asosiy til<select name="preferredLanguage" defaultValue={profile.preferredLanguage}><option value="uz">O‘zbekcha</option><option value="en">English</option><option value="ru">Русский</option></select></label>
+      </div>
+      {message && <p className="profile-message" role="status">{message}</p>}
+      <div className="profile-actions"><button type="button" className="soft-button" onClick={() => setEditing(false)}>Bekor qilish</button><button type="submit" className="primary-button" disabled={saving}>{saving ? "Saqlanmoqda…" : "Saqlash"}<span>✓</span></button></div>
+    </form>}
+    <div className="profile-stats"><article><b>{stats?.supportToday ?? "—"}</b><span>bugun duoda eslangan inson</span></article><article><b>{stats?.saved ?? "—"}</b><span>saqlangan niyat</span></article><article><b>{stats?.activeRequests ?? "—"}</b><span>faol so‘rov</span></article></div>
+    <div className="settings-card"><h3>Maxfiylik va xavfsizlik</h3><div className="setting-row"><span>So‘rov maxfiyligi<small>Har safar anonim yoki ochiq tanlanadi</small></span><b>Sizning nazoratingizda</b></div><div className="setting-row"><span>Joylashuv ko‘rinishi<small>Aniq manzil hech qachon ommaga berilmaydi</small></span><b>Faqat shahar</b></div><a className="setting-row sign-out" href="/signout-with-chatgpt?return_to=/"><span>Hisobdan chiqish<small>Joriy ChatGPT sessiyasini yakunlash</small></span><b>Chiqish →</b></a></div>
+  </div>;
 }

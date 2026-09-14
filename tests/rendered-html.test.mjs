@@ -137,3 +137,18 @@ test("renders persistent notifications with unread controls", async () => {
   assert.match(notificationsApi, /isNull\(notifications\.readAt\)/);
   assert.match(css, /\.notification-list article\.unread/);
 });
+
+test("loads, edits, and persists the signed-in profile", async () => {
+  const [app, meApi, css] = await Promise.all([
+    readFile(files.app, "utf8"),
+    readFile(new URL("../app/api/me/route.ts", import.meta.url), "utf8"),
+    readFile(files.css, "utf8"),
+  ]);
+  assert.match(app, /method: "PATCH"/);
+  assert.match(app, /Profil ma’lumotlari/);
+  assert.match(app, /stats\?\.supportToday/);
+  assert.match(meApi, /export async function PATCH/);
+  assert.match(meApi, /profileUpdateSchema/);
+  assert.match(meApi, /preferredLanguage: next\.preferredLanguage/);
+  assert.match(css, /\.profile-editor/);
+});

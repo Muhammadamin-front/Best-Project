@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { commentSchema, moderateText, mosqueApplicationSchema, prayerRequestSchema, referralActionSchema, reportSchema, safePublicAuthor } from "../lib/product.ts";
+import { commentSchema, moderateText, mosqueApplicationSchema, prayerRequestSchema, profileUpdateSchema, referralActionSchema, reportSchema, safePublicAuthor } from "../lib/product.ts";
 import { distanceInMeters, normalizeOverpassPlaces } from "../lib/geo.ts";
 
 test("validates a normal prayer request", () => {
@@ -60,4 +60,9 @@ test("keeps support comments concise and blocks contact details for review", () 
   assert.equal(commentSchema.safeParse({ body: "Alloh shifo bersin, duodamiz." }).success, true);
   assert.equal(commentSchema.safeParse({ body: "x" }).success, false);
   assert.equal(moderateText("Menga +998 90 123 45 67 orqali yozing").status, "pending_moderation");
+});
+
+test("validates editable profile fields without accepting unsupported languages", () => {
+  assert.equal(profileUpdateSchema.safeParse({ displayName: "Aziza Karimova", city: "Toshkent", country: "O‘zbekiston", preferredLanguage: "uz" }).success, true);
+  assert.equal(profileUpdateSchema.safeParse({ displayName: "A", city: "Toshkent", country: "O‘zbekiston", preferredLanguage: "de" }).success, false);
 });
