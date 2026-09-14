@@ -8,6 +8,8 @@ const files = {
   demo: new URL("../lib/demo-data.ts", import.meta.url),
   css: new URL("../app/globals.css", import.meta.url),
   layout: new URL("../app/layout.tsx", import.meta.url),
+  map: new URL("../app/components/NearbyMap.tsx", import.meta.url),
+  nearbyApi: new URL("../app/api/places/nearby/route.ts", import.meta.url),
 };
 
 test("ships the Duodosh product rather than the starter", async () => {
@@ -46,4 +48,20 @@ test("includes protected operations dashboards", async () => {
   assert.match(mosque, /\/api\/mosques\/\$\{mosqueId\}\/referrals/);
   assert.match(mosque, /Vakillik tasdig‘i kerak/);
   assert.match(auth, /DUODOSH_ADMIN_EMAILS/);
+});
+
+test("includes privacy-conscious nearby mosque and ablution mapping", async () => {
+  const [app, map, nearbyApi, layout] = await Promise.all([
+    readFile(files.app, "utf8"),
+    readFile(files.map, "utf8"),
+    readFile(files.nearbyApi, "utf8"),
+    readFile(files.layout, "utf8"),
+  ]);
+  assert.match(app, /<NearbyMap \/>/);
+  assert.match(map, /Joylashuvimni aniqlash/);
+  assert.match(map, /Joylashuvingiz Duodosh bazasida saqlanmaydi/);
+  assert.match(map, /openstreetmap\.org\/directions/);
+  assert.match(nearbyApi, /"amenity"="place_of_worship"/);
+  assert.match(nearbyApi, /"amenity"="ablution"/);
+  assert.match(layout, /leaflet\/dist\/leaflet\.css/);
 });

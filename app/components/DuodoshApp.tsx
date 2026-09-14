@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { categories, type PrayerRequestInput } from "../../lib/product";
 import { demoRequests, type PrayerCard } from "../../lib/demo-data";
+import NearbyMap from "./NearbyMap";
 
 type Language = "uz" | "en" | "ru";
 type View = "feed" | "saved" | "mine" | "mosque" | "notifications" | "profile";
@@ -247,7 +248,7 @@ function Composer({ t, language, eligible, emergencyOverride, onEmergency, onClo
 }
 
 function MosqueView() {
-  return <div className="feature-view"><div className="feature-hero"><span>⌒</span><div><p className="eyebrow">TASDIQLANGAN HAMKORLAR</p><h2>Yaqiningizdagi masjidlar</h2><p>Faqat sizning aniq roziligingiz bilan imom va masjid vakillari so‘rovingizni ko‘rishi mumkin.</p></div></div><div className="mosque-list">{[{ name: "Minor masjidi", city: "Toshkent", members: "12.4 ming" }, { name: "Imom Buxoriy majmuasi", city: "Samarqand", members: "8.7 ming" }].map((mosque) => <article key={mosque.name}><div className="mosque-thumb">☾</div><div><span className="verified">✓ Tasdiqlangan</span><h3>{mosque.name}</h3><p>{mosque.city} · {mosque.members} hamjamiyat a’zosi</p></div><button className="soft-button">Ko‘rish →</button></article>)}</div></div>;
+  return <div className="feature-view"><div className="feature-hero"><span>⌒</span><div><p className="eyebrow">XARITA VA HAMKORLAR</p><h2>Yaqiningizdagi masjidlar</h2><p>Xaritadan masjid va tahoratxonani toping. Duo so‘rovi esa faqat aniq roziligingiz bilan tasdiqlangan masjid vakiliga yuboriladi.</p></div></div><NearbyMap /><div className="partner-heading"><div><p className="eyebrow">DUODOSH HAMKORLARI</p><h2>Tasdiqlangan masjidlar</h2></div><p>Quyidagi masjidlar Duodosh bilan bog‘langan. Xaritadagi boshqa joylar OpenStreetMap ma’lumotidir.</p></div><div className="mosque-list">{[{ name: "Minor masjidi", city: "Toshkent", members: "12.4 ming" }, { name: "Imom Buxoriy majmuasi", city: "Samarqand", members: "8.7 ming" }].map((mosque) => <article key={mosque.name}><div className="mosque-thumb">☾</div><div><span className="verified">✓ Tasdiqlangan</span><h3>{mosque.name}</h3><p>{mosque.city} · {mosque.members} hamjamiyat a’zosi</p></div><button className="soft-button">Ko‘rish →</button></article>)}</div></div>;
 }
 
 function NotificationsView() {
