@@ -8,6 +8,7 @@ import NearbyMap from "./NearbyMap";
 type Language = "uz" | "en" | "ru";
 type View = "feed" | "saved" | "mine" | "mosque" | "notifications" | "profile";
 type SupportComment = { id: string; body: string; author: string | null; createdAt: string };
+type NotificationItem = { id: string; type: string; title: string; body: string; readAt: string | null; createdAt: string };
 
 const copy = {
   uz: {
@@ -30,6 +31,11 @@ const copy = {
     commentLoading: "Daldalar yuklanmoqda…",
     commentGuidance: "Hukm qilmang, tibbiy yoki diniy fatvo bermang. Telefon va aniq manzil yozmang.",
     commentPending: "Xabaringiz xavfsizlik tekshiruviga yuborildi.",
+    notificationAll: "Barchasi",
+    notificationUnread: "O‘qilmagan",
+    notificationMarkAll: "Barchasini o‘qilgan qilish",
+    notificationEmpty: "Hozircha bildirishnoma yo‘q",
+    notificationEmptyText: "Kimdir so‘rovingizni duoda eslasa yoki dalda yozsa, bu yerda ko‘rasiz.",
     dailyTitle: "Bugungi niyat",
     dailyText: "Kamida uch insonni samimiy duoda eslang. Har bir so‘rov ortida haqiqiy inson bor.",
     progress: "duo qilindi",
@@ -69,6 +75,7 @@ const copy = {
     subtitle: "Today is a beautiful day to remember someone in prayer.", search: "Search prayer requests…", newRequest: "Ask for prayer",
     filters: ["All", "Unanswered", "Near me", "Health", "Family", "Work & study"], prayer: "I prayed for you", prayed: "Prayer offered", save: "Save", saved: "Saved", support: "supports",
     commentTitle: "Kind support", commentIntro: "Help the person asking for prayer feel that they are not alone.", commentPlaceholder: "Write a sincere, brief message…", commentSend: "Send", commentEmpty: "No support yet. You can leave the first kind message.", commentLoading: "Loading messages…", commentGuidance: "Do not judge or give medical or religious rulings. Do not share phone numbers or exact addresses.", commentPending: "Your message was sent for a safety review.",
+    notificationAll: "All", notificationUnread: "Unread", notificationMarkAll: "Mark all as read", notificationEmpty: "No notifications yet", notificationEmptyText: "When someone remembers your request in prayer or leaves support, you will see it here.",
     dailyTitle: "Today’s intention", dailyText: "Remember at least three people sincerely. A real person is behind every request.", progress: "prayers offered",
     mosqueTitle: "Connect with a mosque", mosqueText: "With your consent, a request can be shared with a verified local mosque.", learn: "How does it work?", safety: "A safe community", safetyText: "A private, compassionate space without judgment.",
     composerTitle: "Write a prayer request", composerSubtitle: "Write sincerely. Do not include a phone number, exact address, or document number.", titleLabel: "Short title", titlePlaceholder: "For example: For my mother’s health", bodyLabel: "What should we pray for?", bodyPlaceholder: "Briefly explain your situation…", category: "Category", city: "City (optional)", anonymous: "Share anonymously", anonymousHelp: "Your name will not be shown publicly.", mosqueConsent: "I consent to sharing with a local mosque", emergency: "This is an urgent, highly sensitive situation", emergencyHelp: "Urgent requests are reviewed by a human moderator first.", publish: "Send for review", cancel: "Cancel", gateTitle: "Share compassion first", gateText: "Before a normal request, remember 3 different people in prayer. A comment is never required.", continueEmergency: "Write an urgent request", backFeed: "Return to prayer feed", emptySaved: "Your prayer list is empty", emptySavedText: "Save intentions you want to remember later.", successTitle: "Your request was received", successText: "It will receive a brief safety review before appearing.", resolved: "Alhamdulillah, resolved",
@@ -78,6 +85,7 @@ const copy = {
     greeting: "Ассаляму алейкум, Азиза", subtitle: "Сегодня прекрасный день, чтобы вспомнить кого-то в дуа.", search: "Поиск просьб…", newRequest: "Попросить дуа",
     filters: ["Все", "Без ответа", "Рядом", "Здоровье", "Семья", "Работа и учёба"], prayer: "Я сделал дуа", prayed: "Дуа сделано", save: "Сохранить", saved: "Сохранено", support: "поддержки",
     commentTitle: "Добрая поддержка", commentIntro: "Дайте человеку почувствовать, что он не одинок.", commentPlaceholder: "Напишите короткие искренние слова…", commentSend: "Отправить", commentEmpty: "Поддержки пока нет. Оставьте первое доброе сообщение.", commentLoading: "Загрузка сообщений…", commentGuidance: "Не осуждайте и не давайте медицинских или религиозных заключений. Не указывайте телефон и точный адрес.", commentPending: "Сообщение отправлено на проверку безопасности.",
+    notificationAll: "Все", notificationUnread: "Непрочитанные", notificationMarkAll: "Отметить все прочитанными", notificationEmpty: "Уведомлений пока нет", notificationEmptyText: "Когда кто-то вспомнит вашу просьбу в дуа или оставит поддержку, вы увидите это здесь.",
     dailyTitle: "Намерение дня", dailyText: "Искренне вспомните в дуа хотя бы трёх людей. За каждой просьбой стоит человек.", progress: "дуа сделано", mosqueTitle: "Связаться с мечетью", mosqueText: "С вашего согласия просьба может быть передана проверенной местной мечети.", learn: "Как это работает?", safety: "Безопасное сообщество", safetyText: "Приватное и доброе пространство без осуждения.", composerTitle: "Напишите просьбу о дуа", composerSubtitle: "Не указывайте телефон, точный адрес или номер документа.", titleLabel: "Краткий заголовок", titlePlaceholder: "Например: За здоровье мамы", bodyLabel: "О чём сделать дуа?", bodyPlaceholder: "Кратко опишите ситуацию…", category: "Тема", city: "Город (необязательно)", anonymous: "Опубликовать анонимно", anonymousHelp: "Ваше имя не будет показано.", mosqueConsent: "Согласен передать местной мечети", emergency: "Это срочная и тяжёлая ситуация", emergencyHelp: "Срочные просьбы сначала проверяет модератор.", publish: "Отправить на проверку", cancel: "Отмена", gateTitle: "Сначала поделитесь заботой", gateText: "Перед обычной просьбой вспомните в дуа 3 разных людей. Комментарий не обязателен.", continueEmergency: "Написать срочную просьбу", backFeed: "Вернуться в ленту", emptySaved: "Ваш список дуа пока пуст", emptySavedText: "Сохраните намерения, которые хотите вспомнить позже.", successTitle: "Просьба принята", successText: "Она пройдёт краткую проверку безопасности.", resolved: "Альхамдулиллях, решено",
   },
 } as const;
@@ -100,6 +108,7 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
   const [emergencyOverride, setEmergencyOverride] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [commentTarget, setCommentTarget] = useState<PrayerCard | null>(null);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [notice, setNotice] = useState("");
   const t = copy[language];
   const supportToday = requests.filter((request) => request.supported).length;
@@ -118,6 +127,17 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
           time: "Yaqinda", supportCount: Number(item.supportCount || 0), commentCount: Number(item.commentCount || 0), supported: Boolean(item.supported), saved: Boolean(item.saved),
           anonymous: Boolean(item.isAnonymous), urgent: Boolean(item.isEmergency),
         })));
+      })
+      .catch(() => undefined);
+    return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    void fetch("/api/me")
+      .then(async (response) => response.ok ? response.json() : Promise.reject(new Error("Profile unavailable")))
+      .then((payload: { stats?: { unreadNotifications?: number } }) => {
+        if (active) setUnreadNotifications(Number(payload.stats?.unreadNotifications ?? 0));
       })
       .catch(() => undefined);
     return () => { active = false; };
@@ -177,7 +197,7 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
       <aside className="sidebar">
         <a className="brand" href="#top" aria-label="Duodosh bosh sahifa"><Mark /><span>duodosh</span></a>
         <nav aria-label="Asosiy navigatsiya">
-          {navItems.map(({ key, icon }) => <button key={key} className={view === key ? "nav-item active" : "nav-item"} onClick={() => setView(key)}><span className="nav-icon">{icon}</span><span>{t.nav[key]}</span>{key === "notifications" && <b className="notification-dot">2</b>}</button>)}
+          {navItems.map(({ key, icon }) => <button key={key} className={view === key ? "nav-item active" : "nav-item"} onClick={() => setView(key)}><span className="nav-icon">{icon}</span><span>{t.nav[key]}</span>{key === "notifications" && unreadNotifications > 0 && <b className="notification-dot">{unreadNotifications > 99 ? "99+" : unreadNotifications}</b>}</button>)}
         </nav>
         <div className="sidebar-kindness">
           <span className="tiny-moon">☾</span>
@@ -191,7 +211,7 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
         <header className="topbar">
           <div className="mobile-brand"><Mark size="small" /><b>duodosh</b></div>
           <label className="search"><span>⌕</span><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t.search} aria-label={t.search} /></label>
-          <div className="top-actions"><select value={language} onChange={(e) => setLanguage(e.target.value as Language)} aria-label="Til"><option value="uz">UZ</option><option value="en">EN</option><option value="ru">RU</option></select><button className="icon-button" aria-label={t.nav.notifications} onClick={() => setView("notifications")}>♢<i>2</i></button><button className="avatar coral small" onClick={() => setView("profile")}>{initial}</button></div>
+          <div className="top-actions"><select value={language} onChange={(e) => setLanguage(e.target.value as Language)} aria-label="Til"><option value="uz">UZ</option><option value="en">EN</option><option value="ru">RU</option></select><button className="icon-button" aria-label={t.nav.notifications} onClick={() => setView("notifications")}>♢{unreadNotifications > 0 && <i>{unreadNotifications > 9 ? "9+" : unreadNotifications}</i>}</button><button className="avatar coral small" onClick={() => setView("profile")}>{initial}</button></div>
         </header>
 
         <div className="content-grid">
@@ -206,7 +226,7 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
               </div>
             </>}
             {view === "mosque" && <MosqueView />}
-            {view === "notifications" && <NotificationsView />}
+            {view === "notifications" && <NotificationsView t={t} language={language} onUnreadChange={setUnreadNotifications} />}
             {view === "profile" && <ProfileView viewerName={viewerName} initial={initial} />}
           </section>
 
@@ -340,8 +360,63 @@ function MosqueView() {
   return <div className="feature-view"><div className="feature-hero"><span>⌒</span><div><p className="eyebrow">XARITA VA HAMKORLAR</p><h2>Yaqiningizdagi masjidlar</h2><p>Xaritadan masjid va tahoratxonani toping. Duo so‘rovi esa faqat aniq roziligingiz bilan tasdiqlangan masjid vakiliga yuboriladi.</p></div></div><NearbyMap /><div className="partner-heading"><div><p className="eyebrow">DUODOSH HAMKORLARI</p><h2>Tasdiqlangan masjidlar</h2></div><p>Quyidagi masjidlar Duodosh bilan bog‘langan. Xaritadagi boshqa joylar OpenStreetMap ma’lumotidir.</p></div><div className="mosque-list">{[{ name: "Minor masjidi", city: "Toshkent", members: "12.4 ming" }, { name: "Imom Buxoriy majmuasi", city: "Samarqand", members: "8.7 ming" }].map((mosque) => <article key={mosque.name}><div className="mosque-thumb">☾</div><div><span className="verified">✓ Tasdiqlangan</span><h3>{mosque.name}</h3><p>{mosque.city} · {mosque.members} hamjamiyat a’zosi</p></div><button className="soft-button">Ko‘rish →</button></article>)}</div></div>;
 }
 
-function NotificationsView() {
-  return <div className="feature-view"><h2>Bildirishnomalar</h2><div className="notification-list"><article><span className="round-icon">☾</span><div><b>12 inson sizning so‘rovingizni duoda esladi</b><p>“Imtihonim uchun duo qiling” · 18 daqiqa oldin</p></div></article><article><span className="round-icon coral-bg">♡</span><div><b>Saqlagan niyatingizga yangilanish qo‘shildi</b><p>“Onamning operatsiyasi...” · 1 soat oldin</p></div></article></div></div>;
+function NotificationsView({ t, language, onUnreadChange }: { t: typeof copy[Language]; language: Language; onUnreadChange: (count: number) => void }) {
+  const [items, setItems] = useState<NotificationItem[]>([]);
+  const [filter, setFilter] = useState<"all" | "unread">("all");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    void fetch("/api/notifications")
+      .then(async (response) => response.ok ? response.json() : Promise.reject(new Error("Notifications unavailable")))
+      .then((payload: { notifications?: NotificationItem[] }) => {
+        if (!active) return;
+        const next = payload.notifications ?? [];
+        setItems(next);
+        onUnreadChange(next.filter((item) => !item.readAt).length);
+      })
+      .catch(() => active && setError(language === "uz" ? "Bildirishnomalarni yuklab bo‘lmadi." : language === "en" ? "Notifications could not be loaded." : "Не удалось загрузить уведомления."))
+      .finally(() => active && setLoading(false));
+    return () => { active = false; };
+  }, [language, onUnreadChange]);
+
+  async function markRead(id?: string) {
+    const targets = id ? items.filter((item) => item.id === id && !item.readAt) : items.filter((item) => !item.readAt);
+    if (targets.length === 0) return;
+    try {
+      const response = await fetch("/api/notifications", { method: "PATCH", headers: { "content-type": "application/json" }, body: JSON.stringify(id ? { id } : {}) });
+      if (!response.ok) throw new Error("Mark read failed");
+      const now = new Date().toISOString();
+      const next = items.map((item) => (!id || item.id === id) && !item.readAt ? { ...item, readAt: now } : item);
+      setItems(next);
+      onUnreadChange(next.filter((item) => !item.readAt).length);
+    } catch {
+      setError(language === "uz" ? "Holatni yangilab bo‘lmadi." : language === "en" ? "Could not update the notification." : "Не удалось обновить уведомление.");
+    }
+  }
+
+  const visibleItems = filter === "unread" ? items.filter((item) => !item.readAt) : items;
+  const unreadCount = items.filter((item) => !item.readAt).length;
+  const locale = language === "uz" ? "uz-UZ" : language === "ru" ? "ru-RU" : "en-US";
+
+  return <div className="feature-view notification-view">
+    <div className="notification-heading"><div><p className="eyebrow">YANGILIKLAR</p><h2>{t.nav.notifications}</h2><p>{unreadCount > 0 ? `${unreadCount} ${t.notificationUnread.toLowerCase()}` : t.notificationEmpty}</p></div>{unreadCount > 0 && <button className="soft-button" onClick={() => void markRead()}>{t.notificationMarkAll} ✓</button>}</div>
+    <div className="notification-filters" role="tablist" aria-label={t.nav.notifications}><button className={filter === "all" ? "active" : ""} onClick={() => setFilter("all")}>{t.notificationAll} <b>{items.length}</b></button><button className={filter === "unread" ? "active" : ""} onClick={() => setFilter("unread")}>{t.notificationUnread} <b>{unreadCount}</b></button></div>
+    {error && <p className="notification-error" role="status">{error}</p>}
+    <div className="notification-list">
+      {loading && <div className="notification-empty">{language === "uz" ? "Yuklanmoqda…" : language === "en" ? "Loading…" : "Загрузка…"}</div>}
+      {!loading && visibleItems.length === 0 && <div className="notification-empty"><span>♢</span><h3>{t.notificationEmpty}</h3><p>{t.notificationEmptyText}</p></div>}
+      {visibleItems.map((notification) => {
+        const icon = notification.type === "prayer_support" ? "☾" : notification.type === "support_comment" ? "♡" : "⌒";
+        return <article key={notification.id} className={notification.readAt ? "read" : "unread"}>
+          <span className={`round-icon ${notification.type === "support_comment" ? "coral-bg" : notification.type === "mosque_referral" ? "sand-bg" : ""}`}>{icon}</span>
+          <div><div><b>{notification.title}</b>{!notification.readAt && <i aria-label={t.notificationUnread} />}</div><p>{notification.body}</p><time>{new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }).format(new Date(notification.createdAt))}</time></div>
+          {!notification.readAt && <button onClick={() => void markRead(notification.id)} aria-label={`${notification.title}: ${t.notificationMarkAll}`}>✓</button>}
+        </article>;
+      })}
+    </div>
+  </div>;
 }
 
 function ProfileView({ viewerName, initial }: { viewerName: string; initial: string }) {

@@ -12,6 +12,7 @@ const files = {
   nearbyApi: new URL("../app/api/places/nearby/route.ts", import.meta.url),
   sonar: new URL("../components/ui/sonar-grid.tsx", import.meta.url),
   commentsApi: new URL("../app/api/requests/[id]/comments/route.ts", import.meta.url),
+  notificationsApi: new URL("../app/api/notifications/route.ts", import.meta.url),
 };
 
 test("ships the Duodosh product rather than the starter", async () => {
@@ -94,4 +95,18 @@ test("connects prayer cards to moderated support comments", async () => {
   assert.match(commentsApi, /moderateText\(parsed\.data\.body\)/);
   assert.match(commentsApi, /support_comment/);
   assert.match(requestsApi, /commentCount:/);
+});
+
+test("renders persistent notifications with unread controls", async () => {
+  const [app, notificationsApi, css] = await Promise.all([
+    readFile(files.app, "utf8"),
+    readFile(files.notificationsApi, "utf8"),
+    readFile(files.css, "utf8"),
+  ]);
+  assert.match(app, /function NotificationsView/);
+  assert.match(app, /fetch\("\/api\/notifications"\)/);
+  assert.match(app, /notificationMarkAll/);
+  assert.match(notificationsApi, /export async function PATCH/);
+  assert.match(notificationsApi, /isNull\(notifications\.readAt\)/);
+  assert.match(css, /\.notification-list article\.unread/);
 });
