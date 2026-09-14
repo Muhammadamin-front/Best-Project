@@ -111,9 +111,11 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [notice, setNotice] = useState("");
   const t = copy[language];
+  const requestView = view === "feed" || view === "saved" || view === "mine";
   const supportToday = requests.filter((request) => request.supported).length;
   const firstName = viewerName.trim().split(/\s+/)[0] || "Duodosh";
   const initial = firstName.slice(0, 1).toUpperCase();
+  const todayLabel = new Intl.DateTimeFormat(language === "uz" ? "uz-UZ" : language === "ru" ? "ru-RU" : "en-US", { day: "numeric", month: "long", timeZone: "Asia/Tashkent" }).format(new Date());
 
   useEffect(() => {
     let active = true;
@@ -207,16 +209,16 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
         <button className="user-card" onClick={() => setView("profile")}><span className="avatar coral">{initial}</span><span><b>{viewerName}</b><small>Toshkent, O‘zbekiston</small></span><span>•••</span></button>
       </aside>
 
-      <main className="main" id="top">
+      <main className={requestView ? "main" : "main section-main"} id="top">
         <header className="topbar">
           <div className="mobile-brand"><Mark size="small" /><b>duodosh</b></div>
-          <label className="search"><span>⌕</span><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t.search} aria-label={t.search} /></label>
+          {requestView ? <label className="search"><span>⌕</span><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t.search} aria-label={t.search} /></label> : <div className="top-context"><span>DUODOSH</span><b>{t.nav[view]}</b></div>}
           <div className="top-actions"><select value={language} onChange={(e) => setLanguage(e.target.value as Language)} aria-label="Til"><option value="uz">UZ</option><option value="en">EN</option><option value="ru">RU</option></select><button className="icon-button" aria-label={t.nav.notifications} onClick={() => setView("notifications")}>♢{unreadNotifications > 0 && <i>{unreadNotifications > 9 ? "9+" : unreadNotifications}</i>}</button><button className="avatar coral small" onClick={() => setView("profile")}>{initial}</button></div>
         </header>
 
         <div className="content-grid">
           <section className="feed-column">
-            <div className="welcome-row"><div><p className="eyebrow">DUODA BIRGAMIZ</p><h1>{view === "saved" ? t.nav.saved : view === "mine" ? t.nav.mine : `${language === "ru" ? "Ассаляму алейкум" : language === "en" ? "Assalamu alaikum" : "Assalomu alaykum"}, ${firstName}`}</h1><p>{view === "feed" ? t.subtitle : view === "saved" ? t.emptySavedText : "Siz ulashgan niyatlar shu yerda saqlanadi."}</p></div><button className="primary-button" onClick={() => { setComposerOpen(true); setSubmitted(false); setEmergencyOverride(false); }}><span>＋</span>{t.newRequest}</button></div>
+            {requestView && <div className="welcome-row"><div><p className="eyebrow">DUODA BIRGAMIZ</p><h1>{view === "saved" ? t.nav.saved : view === "mine" ? t.nav.mine : `${language === "ru" ? "Ассаляму алейкум" : language === "en" ? "Assalamu alaikum" : "Assalomu alaykum"}, ${firstName}`}</h1><p>{view === "feed" ? t.subtitle : view === "saved" ? t.emptySavedText : "Siz ulashgan niyatlar shu yerda saqlanadi."}</p></div><button className="primary-button" onClick={() => { setComposerOpen(true); setSubmitted(false); setEmergencyOverride(false); }}><span>＋</span>{t.newRequest}</button></div>}
 
             {(view === "feed" || view === "saved" || view === "mine") && <>
               <div className="filter-row" role="tablist" aria-label="Filtrlar">{t.filters.map((label, index) => <button key={label} className={filter === index ? "filter active" : "filter"} onClick={() => setFilter(index)}>{label}</button>)}</div>
@@ -235,7 +237,7 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
               <div className="card-icon green">☾</div><h2>{t.dailyTitle}</h2><p>{t.dailyText}</p>
               <div className="progress-label"><span>{Math.min(supportToday, 3)} / 3 {t.progress}</span><b>{Math.round(Math.min(supportToday / 3, 1) * 100)}%</b></div>
               <div className="progress-track"><i style={{ width: `${Math.min(supportToday / 3, 1) * 100}%` }} /></div>
-              <small>Bugun, 14-sentabr</small>
+              <small>{language === "uz" ? "Bugun" : language === "ru" ? "Сегодня" : "Today"}, {todayLabel}</small>
             </div>
             <div className="mosque-card"><div className="mosque-art" aria-hidden="true"><span>☾</span><div>⌒</div></div><h2>{t.mosqueTitle}</h2><p>{t.mosqueText}</p><button onClick={() => setView("mosque")}>{t.learn}<span>→</span></button></div>
             <div className="safety-card"><span>♢</span><div><h3>{t.safety}</h3><p>{t.safetyText}</p></div></div>
@@ -406,7 +408,7 @@ function NotificationsView({ t, language, onUnreadChange }: { t: typeof copy[Lan
     {error && <p className="notification-error" role="status">{error}</p>}
     <div className="notification-list">
       {loading && <div className="notification-empty">{language === "uz" ? "Yuklanmoqda…" : language === "en" ? "Loading…" : "Загрузка…"}</div>}
-      {!loading && visibleItems.length === 0 && <div className="notification-empty"><span>♢</span><h3>{t.notificationEmpty}</h3><p>{t.notificationEmptyText}</p></div>}
+      {!loading && !error && visibleItems.length === 0 && <div className="notification-empty"><span>♢</span><h3>{t.notificationEmpty}</h3><p>{t.notificationEmptyText}</p></div>}
       {visibleItems.map((notification) => {
         const icon = notification.type === "prayer_support" ? "☾" : notification.type === "support_comment" ? "♡" : "⌒";
         return <article key={notification.id} className={notification.readAt ? "read" : "unread"}>
