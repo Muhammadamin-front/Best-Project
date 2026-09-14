@@ -36,12 +36,14 @@ test("includes privacy, localization, and accessibility affordances", async () =
 });
 
 test("includes protected operations dashboards", async () => {
-  const [moderation, mosque] = await Promise.all([
+  const [moderation, mosque, auth] = await Promise.all([
     readFile(new URL("../app/moderation/ModerationDashboard.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/mosque-dashboard/MosqueDashboard.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../lib/server-auth.ts", import.meta.url), "utf8"),
   ]);
   assert.match(moderation, /\/api\/moderation\/queue/);
   assert.match(moderation, /Ruxsat yetarli emas/);
   assert.match(mosque, /\/api\/mosques\/\$\{mosqueId\}\/referrals/);
   assert.match(mosque, /Vakillik tasdig‘i kerak/);
+  assert.match(auth, /DUODOSH_ADMIN_EMAILS/);
 });

@@ -25,8 +25,11 @@ export async function requireProfile(request: Request) {
 
   const db = getDb();
   const id = await stableUserId(identity.email);
-  const localRole = new URL(request.url).hostname === "localhost" ? "admin" : "user";
-  await db.insert(profiles).values({ id, email: identity.email, displayName: identity.displayName, role: localRole }).onConflictDoNothing();
+  const isLocal = ["localhost", "127.0.0.1"].includes(new URL(request.url).hostname);
+  const configuredAdmins = (process.env.DUODOSH_ADMIN_EMAILS ?? "").toLowerCase().split(",").map((email) => email.trim()).filter(Boolean);
+  const assignedRole = isLocal || configuredAdmins.includes(identity.email.toLowerCase()) ? "admin" : "user";
+  await db.insert(profiles).values({ id, email: identity.email, displayName: identity.displayName, role: assignedRole }).onConflictDoNothing();
+  if (assignedRole === "admin") await db.update(profiles).set({ role: "admin", updatedAt: new Date().toISOString() }).where(eq(profiles.id, id));
   const [profile] = await db.select().from(profiles).where(eq(profiles.id, id)).limit(1);
   return profile ?? null;
 }
