@@ -1,41 +1,28 @@
 import { and, eq } from "drizzle-orm";
-import { getChatGPTUser } from "../../../../chatgpt-auth";
 import { getDb } from "../../../../../db";
-import { prayerSupports, profiles } from "../../../../../db/schema";
-
-async function identity(request: Request) {
-  const user = await getChatGPTUser();
-  if (user) return user;
-  const host = new URL(request.url).hostname;
-  return host === "localhost" || host === "127.0.0.1"
-    ? { email: "demo@duodosh.local", displayName: "Aziza" }
-    : null;
-}
-
-async function stableUserId(email: string) {
-  const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(email));
-  return `usr_${Array.from(new Uint8Array(hash)).slice(0, 12).map((v) => v.toString(16).padStart(2, "0")).join("")}`;
-}
+import { notifications, prayerRequests, prayerSupports } from "../../../../../db/schema";
+import { requireProfile } from "../../../../../lib/server-auth";
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
-  const user = await identity(request);
-  if (!user) return Response.json({ error: "Authentication required" }, { status: 401 });
-
   try {
     const { id } = await context.params;
     const db = getDb();
-    const userId = await stableUserId(user.email);
-    await db.insert(profiles).values({ id: userId, email: user.email, displayName: user.displayName }).onConflictDoNothing();
+    const profile = await requireProfile(request);
+    if (!profile) return Response.json({ error: "Authentication required" }, { status: 401 });
 
     const existing = await db.select({ id: prayerSupports.id }).from(prayerSupports)
-      .where(and(eq(prayerSupports.prayerRequestId, id), eq(prayerSupports.userId, userId))).limit(1);
+      .where(and(eq(prayerSupports.prayerRequestId, id), eq(prayerSupports.userId, profile.id))).limit(1);
 
     if (existing[0]) {
       await db.delete(prayerSupports).where(eq(prayerSupports.id, existing[0].id));
       return Response.json({ supported: false });
     }
 
-    await db.insert(prayerSupports).values({ id: `sup_${crypto.randomUUID()}`, prayerRequestId: id, userId });
+    await db.insert(prayerSupports).values({ id: `sup_${crypto.randomUUID()}`, prayerRequestId: id, userId: profile.id });
+    const [target] = await db.select({ authorId: prayerRequests.authorId, title: prayerRequests.title }).from(prayerRequests).where(eq(prayerRequests.id, id)).limit(1);
+    if (target?.authorId && target.authorId !== profile.id) {
+      await db.insert(notifications).values({ id: `ntf_${crypto.randomUUID()}`, userId: target.authorId, type: "prayer_support", title: "Yangi duo", body: `Kimdir “${target.title}” so‘rovingizni duoda esladi.` });
+    }
     return Response.json({ supported: true });
   } catch (error) {
     return Response.json({ error: error instanceof Error ? error.message : "Unexpected error" }, { status: 500 });

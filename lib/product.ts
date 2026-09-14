@@ -26,6 +26,32 @@ export const prayerRequestSchema = z.object({
 
 export type PrayerRequestInput = z.infer<typeof prayerRequestSchema>;
 
+export const commentSchema = z.object({ body: z.string().trim().min(2).max(600) });
+export const reportSchema = z.object({
+  targetType: z.enum(["prayer_request", "comment"]),
+  targetId: z.string().min(3).max(120),
+  reason: z.enum(["self_harm", "immediate_danger", "fraud", "harassment", "hate", "pii", "spam", "other"]),
+  details: z.string().trim().max(800).optional().default(""),
+});
+export const moderationActionSchema = z.object({
+  targetType: z.enum(["prayer_request", "comment", "report"]),
+  targetId: z.string().min(3).max(120),
+  action: z.enum(["publish", "limit", "reject", "resolve_report"]),
+  note: z.string().trim().max(1000).optional().default(""),
+});
+export const mosqueApplicationSchema = z.object({
+  name: z.string().trim().min(3).max(120),
+  description: z.string().trim().max(800).optional().default(""),
+  address: z.string().trim().max(200).optional().default(""),
+  city: z.string().trim().min(2).max(80),
+  country: z.string().trim().min(2).max(80),
+  evidence: z.string().trim().min(10).max(1200),
+});
+export const referralActionSchema = z.object({
+  action: z.enum(["accept", "decline", "included_in_prayer"]),
+  note: z.string().trim().max(800).optional().default(""),
+});
+
 const highRiskPatterns = [
   /o['‘’`]zimni o['‘’`]ldir/i,
   /jonimga qasd/i,

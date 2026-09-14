@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { moderateText, prayerRequestSchema, safePublicAuthor } from "../lib/product.ts";
+import { moderateText, mosqueApplicationSchema, prayerRequestSchema, referralActionSchema, reportSchema, safePublicAuthor } from "../lib/product.ts";
 
 test("validates a normal prayer request", () => {
   const result = prayerRequestSchema.safeParse({
@@ -32,4 +32,15 @@ test("flags likely personal phone numbers", () => {
 test("never exposes an anonymous author", () => {
   assert.equal(safePublicAuthor(true, "Real Name"), "Duodosh a’zosi");
   assert.equal(safePublicAuthor(false, "Aziza"), "Aziza");
+});
+
+test("prioritizes urgent safety reports", () => {
+  assert.equal(reportSchema.safeParse({ targetType: "prayer_request", targetId: "pr_123", reason: "self_harm" }).success, true);
+  assert.equal(reportSchema.safeParse({ targetType: "profile", targetId: "x", reason: "other" }).success, false);
+});
+
+test("validates mosque applications and referral actions", () => {
+  assert.equal(mosqueApplicationSchema.safeParse({ name: "Minor masjidi", city: "Toshkent", country: "O‘zbekiston", evidence: "Rasmiy vakil hujjati raqami" }).success, true);
+  assert.equal(referralActionSchema.safeParse({ action: "included_in_prayer" }).success, true);
+  assert.equal(referralActionSchema.safeParse({ action: "delete" }).success, false);
 });

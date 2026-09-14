@@ -17,7 +17,7 @@ test("ships the Duodosh product rather than the starter", async () => {
     readFile(files.layout, "utf8"),
     readFile(files.demo, "utf8"),
   ]);
-  assert.match(page, /<DuodoshApp \/>/);
+  assert.match(page, /<DuodoshApp viewerName=/);
   assert.match(layout, /Duodosh — duoda birgamiz/);
   assert.match(app, /Assalomu alaykum, Aziza/);
   assert.match(demo, /Onamning operatsiyasi uchun duo qiling/);
@@ -33,4 +33,15 @@ test("includes privacy, localization, and accessibility affordances", async () =
   assert.match(app, /type Language = "uz" \| "en" \| "ru"/);
   assert.match(css, /prefers-reduced-motion/);
   assert.match(css, /@media \(max-width: 760px\)/);
+});
+
+test("includes protected operations dashboards", async () => {
+  const [moderation, mosque] = await Promise.all([
+    readFile(new URL("../app/moderation/ModerationDashboard.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/mosque-dashboard/MosqueDashboard.tsx", import.meta.url), "utf8"),
+  ]);
+  assert.match(moderation, /\/api\/moderation\/queue/);
+  assert.match(moderation, /Ruxsat yetarli emas/);
+  assert.match(mosque, /\/api\/mosques\/\$\{mosqueId\}\/referrals/);
+  assert.match(mosque, /Vakillik tasdig‘i kerak/);
 });

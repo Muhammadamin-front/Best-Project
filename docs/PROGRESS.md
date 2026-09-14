@@ -10,10 +10,15 @@
 - Server validation, deterministic risk screening, fair feed ordering, and unique support endpoint
 - Browser-tested support and request-creation flows
 - Build, lint, and product-rule tests
+- Persisted saves, supportive comments, reports, and in-app notifications
+- Role-enforced moderation queue and audited moderation actions
+- Consent-enforced mosque referrals and mosque-representative actions
+- Protected moderator and mosque dashboard routes
+- Production feed hydration with authenticated viewer state
 
 ## Pilot follow-up
 
-- Connect production moderator actions and mosque verification screens to dedicated APIs
+- Add administrator UI for approving mosque-verification applications and assigning representatives
 - Add jurisdiction-reviewed emergency-resource directory
 - Add delivery providers for email and push notifications
 - Run independent security, religious-advisory, accessibility, and legal reviews

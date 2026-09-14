@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { categories, type PrayerRequestInput } from "../../lib/product";
 import { demoRequests, type PrayerCard } from "../../lib/demo-data";
 
@@ -78,7 +78,7 @@ function Mark({ size = "normal" }: { size?: "normal" | "small" }) {
   return <span className={`brand-mark ${size}`} aria-hidden="true"><span>☾</span><i>•</i></span>;
 }
 
-export default function DuodoshApp() {
+export default function DuodoshApp({ viewerName }: { viewerName: string }) {
   const [language, setLanguage] = useState<Language>("uz");
   const [view, setView] = useState<View>("feed");
   const [requests, setRequests] = useState<PrayerCard[]>(demoRequests);
@@ -90,6 +90,25 @@ export default function DuodoshApp() {
   const [notice, setNotice] = useState("");
   const t = copy[language];
   const supportToday = requests.filter((request) => request.supported).length;
+  const firstName = viewerName.trim().split(/\s+/)[0] || "Duodosh";
+  const initial = firstName.slice(0, 1).toUpperCase();
+
+  useEffect(() => {
+    let active = true;
+    void fetch("/api/requests")
+      .then(async (response) => response.ok ? response.json() : Promise.reject(new Error("Feed unavailable")))
+      .then((payload: { requests?: Array<Record<string, unknown>> }) => {
+        if (!active || !payload.requests?.length) return;
+        setRequests(payload.requests.map((item) => ({
+          id: String(item.id), author: String(item.author || "Duodosh a’zosi"), avatar: String(item.author || "D").slice(0, 1).toUpperCase(),
+          title: String(item.title), body: String(item.body), category: String(item.category), categoryKey: String(item.category), city: String(item.city || "O‘zbekiston"),
+          time: "Yaqinda", supportCount: Number(item.supportCount || 0), commentCount: 0, supported: Boolean(item.supported), saved: Boolean(item.saved),
+          anonymous: Boolean(item.isAnonymous), urgent: Boolean(item.isEmergency),
+        })));
+      })
+      .catch(() => undefined);
+    return () => { active = false; };
+  }, []);
 
   const visibleRequests = useMemo(() => {
     let next = view === "saved" ? requests.filter((item) => item.saved) : view === "mine" ? requests.filter((item) => item.id.startsWith("local-")) : requests;
@@ -107,11 +126,12 @@ export default function DuodoshApp() {
     setRequests((items) => items.map((item) => item.id === target.id ? { ...item, supported: !item.supported, supportCount: item.supportCount + (item.supported ? -1 : 1) } : item));
     setNotice(target.supported ? "Duo belgisi olib tashlandi" : "Alloh duoyingizni qabul qilsin");
     window.setTimeout(() => setNotice(""), 2400);
-    if (!target.id.startsWith("demo-") && !target.id.startsWith("local-")) void fetch(`/api/requests/${target.id}/support`, { method: "POST" });
+    if (!target.id.startsWith("local-")) void fetch(`/api/requests/${target.id}/support`, { method: "POST" });
   }
 
   function toggleSave(target: PrayerCard) {
     setRequests((items) => items.map((item) => item.id === target.id ? { ...item, saved: !item.saved } : item));
+    if (!target.id.startsWith("local-")) void fetch(`/api/requests/${target.id}/save`, { method: "POST" });
   }
 
   function submitRequest(event: FormEvent<HTMLFormElement>) {
@@ -123,10 +143,16 @@ export default function DuodoshApp() {
       city: String(form.get("city") || ""), country: "O‘zbekiston", isAnonymous: form.get("anonymous") === "on", visibility: "public",
       mosqueReferralConsent: form.get("mosque") === "on", isEmergency: emergencyOverride || form.get("emergency") === "on",
     };
-    const newCard: PrayerCard = { id: `local-${Date.now()}`, author: payload.isAnonymous ? "Anonim duodosh" : "Aziza", avatar: payload.isAnonymous ? "D" : "A", title: payload.title, body: payload.body, category: categoryLabels[categoryKey][language], categoryKey, city: payload.city || "O‘zbekiston", time: "Hozirgina", supportCount: 0, commentCount: 0, supported: false, saved: false, anonymous: payload.isAnonymous, urgent: payload.isEmergency };
+    const localId = `local-${Date.now()}`;
+    const newCard: PrayerCard = { id: localId, author: payload.isAnonymous ? "Anonim duodosh" : firstName, avatar: payload.isAnonymous ? "D" : initial, title: payload.title, body: payload.body, category: categoryLabels[categoryKey][language], categoryKey, city: payload.city || "O‘zbekiston", time: "Hozirgina", supportCount: 0, commentCount: 0, supported: false, saved: false, anonymous: payload.isAnonymous, urgent: payload.isEmergency };
     setRequests((items) => [newCard, ...items]);
     setSubmitted(true);
-    void fetch("/api/requests", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) }).catch(() => undefined);
+    void fetch("/api/requests", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) })
+      .then(async (response) => response.ok ? response.json() : Promise.reject(new Error("Create failed")))
+      .then((result: { id?: string; status?: string }) => {
+        if (result.id) setRequests((items) => items.map((item) => item.id === localId ? { ...item, id: result.id as string, urgent: result.status === "pending_moderation" } : item));
+      })
+      .catch(() => undefined);
   }
 
   const navItems: { key: View; icon: string }[] = [
@@ -145,19 +171,19 @@ export default function DuodoshApp() {
           <strong>{t.dailyTitle}</strong>
           <p>“Bir-biringizni duoda unutmang.”</p>
         </div>
-        <button className="user-card" onClick={() => setView("profile")}><span className="avatar coral">A</span><span><b>Aziza Karimova</b><small>Toshkent, O‘zbekiston</small></span><span>•••</span></button>
+        <button className="user-card" onClick={() => setView("profile")}><span className="avatar coral">{initial}</span><span><b>{viewerName}</b><small>Toshkent, O‘zbekiston</small></span><span>•••</span></button>
       </aside>
 
       <main className="main" id="top">
         <header className="topbar">
           <div className="mobile-brand"><Mark size="small" /><b>duodosh</b></div>
           <label className="search"><span>⌕</span><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t.search} aria-label={t.search} /></label>
-          <div className="top-actions"><select value={language} onChange={(e) => setLanguage(e.target.value as Language)} aria-label="Til"><option value="uz">UZ</option><option value="en">EN</option><option value="ru">RU</option></select><button className="icon-button" aria-label={t.nav.notifications} onClick={() => setView("notifications")}>♢<i>2</i></button><button className="avatar coral small" onClick={() => setView("profile")}>A</button></div>
+          <div className="top-actions"><select value={language} onChange={(e) => setLanguage(e.target.value as Language)} aria-label="Til"><option value="uz">UZ</option><option value="en">EN</option><option value="ru">RU</option></select><button className="icon-button" aria-label={t.nav.notifications} onClick={() => setView("notifications")}>♢<i>2</i></button><button className="avatar coral small" onClick={() => setView("profile")}>{initial}</button></div>
         </header>
 
         <div className="content-grid">
           <section className="feed-column">
-            <div className="welcome-row"><div><p className="eyebrow">DUODA BIRGAMIZ</p><h1>{view === "saved" ? t.nav.saved : view === "mine" ? t.nav.mine : t.greeting}</h1><p>{view === "feed" ? t.subtitle : view === "saved" ? t.emptySavedText : "Siz ulashgan niyatlar shu yerda saqlanadi."}</p></div><button className="primary-button" onClick={() => { setComposerOpen(true); setSubmitted(false); setEmergencyOverride(false); }}><span>＋</span>{t.newRequest}</button></div>
+            <div className="welcome-row"><div><p className="eyebrow">DUODA BIRGAMIZ</p><h1>{view === "saved" ? t.nav.saved : view === "mine" ? t.nav.mine : `${language === "ru" ? "Ассаляму алейкум" : language === "en" ? "Assalamu alaikum" : "Assalomu alaykum"}, ${firstName}`}</h1><p>{view === "feed" ? t.subtitle : view === "saved" ? t.emptySavedText : "Siz ulashgan niyatlar shu yerda saqlanadi."}</p></div><button className="primary-button" onClick={() => { setComposerOpen(true); setSubmitted(false); setEmergencyOverride(false); }}><span>＋</span>{t.newRequest}</button></div>
 
             {(view === "feed" || view === "saved" || view === "mine") && <>
               <div className="filter-row" role="tablist" aria-label="Filtrlar">{t.filters.map((label, index) => <button key={label} className={filter === index ? "filter active" : "filter"} onClick={() => setFilter(index)}>{label}</button>)}</div>
@@ -168,7 +194,7 @@ export default function DuodoshApp() {
             </>}
             {view === "mosque" && <MosqueView />}
             {view === "notifications" && <NotificationsView />}
-            {view === "profile" && <ProfileView />}
+            {view === "profile" && <ProfileView viewerName={viewerName} initial={initial} />}
           </section>
 
           <aside className="right-rail">
@@ -228,6 +254,6 @@ function NotificationsView() {
   return <div className="feature-view"><h2>Bildirishnomalar</h2><div className="notification-list"><article><span className="round-icon">☾</span><div><b>12 inson sizning so‘rovingizni duoda esladi</b><p>“Imtihonim uchun duo qiling” · 18 daqiqa oldin</p></div></article><article><span className="round-icon coral-bg">♡</span><div><b>Saqlagan niyatingizga yangilanish qo‘shildi</b><p>“Onamning operatsiyasi...” · 1 soat oldin</p></div></article></div></div>;
 }
 
-function ProfileView() {
-  return <div className="feature-view"><div className="profile-header"><span className="avatar coral large">A</span><div><h2>Aziza Karimova</h2><p>Toshkent, O‘zbekiston · O‘zbekcha</p></div><button className="soft-button">Tahrirlash</button></div><div className="profile-stats"><article><b>18</b><span>duoda eslangan inson</span></article><article><b>4</b><span>saqlangan niyat</span></article><article><b>2</b><span>faol so‘rov</span></article></div><div className="settings-card"><h3>Maxfiylik va xavfsizlik</h3><button>Standart anonimlik <span>Yoqilgan ›</span></button><button>Joylashuv ko‘rinishi <span>Faqat shahar ›</span></button><button>Bloklangan foydalanuvchilar <span>0 ›</span></button><button className="danger">Hisobni o‘chirish <span>›</span></button></div></div>;
+function ProfileView({ viewerName, initial }: { viewerName: string; initial: string }) {
+  return <div className="feature-view"><div className="profile-header"><span className="avatar coral large">{initial}</span><div><h2>{viewerName}</h2><p>Toshkent, O‘zbekiston · O‘zbekcha</p></div><button className="soft-button">Tahrirlash</button></div><div className="profile-stats"><article><b>18</b><span>duoda eslangan inson</span></article><article><b>4</b><span>saqlangan niyat</span></article><article><b>2</b><span>faol so‘rov</span></article></div><div className="settings-card"><h3>Maxfiylik va xavfsizlik</h3><button>Standart anonimlik <span>Yoqilgan ›</span></button><button>Joylashuv ko‘rinishi <span>Faqat shahar ›</span></button><button>Bloklangan foydalanuvchilar <span>0 ›</span></button><button className="danger">Hisobni o‘chirish <span>›</span></button></div></div>;
 }

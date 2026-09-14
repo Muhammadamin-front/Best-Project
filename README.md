@@ -10,6 +10,9 @@ Duodosh is a privacy-first Muslim mutual-support platform for sharing prayer req
 - Anonymous requests and mosque-referral consent
 - Uzbek, English, and Russian UI structure
 - Mosque, notification, profile, and privacy surfaces
+- Persisted saves, comments, reports, and in-app notifications
+- Protected moderator queue with audited actions
+- Consent-enforced mosque referral workflow and representative dashboard
 - High-risk and personal-information moderation fallback
 - Cloudflare D1 schema for users, requests, moderation, notifications, and mosque referrals
 - ChatGPT/Sites authentication helper for hosted protected flows
@@ -50,6 +53,8 @@ Generated migrations are stored in `drizzle/` and should be inspected before dep
 - `app/components/DuodoshApp.tsx` — multilingual interactive product shell
 - `app/api/requests` — authenticated request creation and fair public retrieval
 - `app/api/requests/[id]/support` — unique, reversible support action
+- `app/api/moderation/queue` — role-enforced safety review workflow
+- `app/api/mosques/[id]/referrals` — consent and mosque-membership enforcement
 - `lib/product.ts` — shared validation and deterministic safety checks
 - `db/schema.ts` — relational D1 model
 - `drizzle/` — generated migrations

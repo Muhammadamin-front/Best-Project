@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 export const profiles = sqliteTable("profiles", {
   id: text("id").primaryKey(),
@@ -32,7 +32,11 @@ export const prayerRequests = sqliteTable("prayer_requests", {
   resolvedAt: text("resolved_at"),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
-});
+}, (table) => [
+  index("prayer_requests_status_created_idx").on(table.status, table.createdAt),
+  index("prayer_requests_city_idx").on(table.city),
+  index("prayer_requests_author_idx").on(table.authorId),
+]);
 
 export const prayerSupports = sqliteTable("prayer_supports", {
   id: text("id").primaryKey(),
@@ -75,7 +79,7 @@ export const reports = sqliteTable("reports", {
   status: text("status").notNull().default("open"),
   priority: text("priority").notNull().default("normal"),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
-});
+}, (table) => [index("reports_status_priority_idx").on(table.status, table.priority, table.createdAt)]);
 
 export const moderationActions = sqliteTable("moderation_actions", {
   id: text("id").primaryKey(),
@@ -105,7 +109,7 @@ export const notifications = sqliteTable("notifications", {
   body: text("body").notNull(),
   readAt: text("read_at"),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
-});
+}, (table) => [index("notifications_user_read_idx").on(table.userId, table.readAt, table.createdAt)]);
 
 export const mosques = sqliteTable("mosques", {
   id: text("id").primaryKey(),
@@ -144,7 +148,10 @@ export const mosqueReferrals = sqliteTable("mosque_referrals", {
   status: text("status").notNull().default("pending"),
   createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`),
-});
+}, (table) => [
+  uniqueIndex("mosque_referral_unique").on(table.mosqueId, table.prayerRequestId),
+  index("mosque_referral_status_idx").on(table.mosqueId, table.status, table.createdAt),
+]);
 
 export const mosqueActions = sqliteTable("mosque_actions", {
   id: text("id").primaryKey(),

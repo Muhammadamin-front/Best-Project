@@ -1,25 +1,18 @@
 import { and, desc, eq, sql } from "drizzle-orm";
-import { getChatGPTUser } from "../../chatgpt-auth";
 import { getDb } from "../../../db";
-import { prayerRequests, prayerSupports, profiles } from "../../../db/schema";
+import { prayerRequests, prayerSaves, prayerSupports, profiles } from "../../../db/schema";
 import { moderateText, prayerRequestSchema, safePublicAuthor } from "../../../lib/product";
+import { requestIdentity, requireProfile, stableUserId } from "../../../lib/server-auth";
 
 function id(prefix: string) {
   return `${prefix}_${crypto.randomUUID()}`;
 }
 
-async function currentUser(request: Request) {
-  const user = await getChatGPTUser();
-  if (user) return user;
-  const host = new URL(request.url).hostname;
-  return host === "localhost" || host === "127.0.0.1"
-    ? { email: "demo@duodosh.local", displayName: "Aziza", fullName: "Aziza" }
-    : null;
-}
-
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const db = getDb();
+    const identity = await requestIdentity(request);
+    const viewerId = identity ? await stableUserId(identity.email) : null;
     const rows = await db
       .select({
         id: prayerRequests.id,
@@ -42,11 +35,20 @@ export async function GET() {
       .orderBy(sql`count(${prayerSupports.id}) asc`, desc(prayerRequests.createdAt))
       .limit(30);
 
+    const [supports, saves] = viewerId ? await Promise.all([
+      db.select({ requestId: prayerSupports.prayerRequestId }).from(prayerSupports).where(eq(prayerSupports.userId, viewerId)),
+      db.select({ requestId: prayerSaves.prayerRequestId }).from(prayerSaves).where(eq(prayerSaves.userId, viewerId)),
+    ]) : [[], []];
+    const supportedIds = new Set(supports.map((item) => item.requestId));
+    const savedIds = new Set(saves.map((item) => item.requestId));
+
     return Response.json({
       requests: rows.map((row) => ({
         ...row,
         author: safePublicAuthor(row.isAnonymous, row.displayName),
         displayName: undefined,
+        supported: supportedIds.has(row.id),
+        saved: savedIds.has(row.id),
       })),
     });
   } catch (error) {
@@ -56,23 +58,19 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const user = await currentUser(request);
-  if (!user) return Response.json({ error: "Authentication required" }, { status: 401 });
-
   try {
+    const profile = await requireProfile(request);
+    if (!profile) return Response.json({ error: "Authentication required" }, { status: 401 });
     const parsed = prayerRequestSchema.safeParse(await request.json());
     if (!parsed.success) {
       return Response.json({ error: "Invalid request", fields: parsed.error.flatten().fieldErrors }, { status: 400 });
     }
 
     const db = getDb();
-    const userId = `usr_${await crypto.subtle.digest("SHA-256", new TextEncoder().encode(user.email)).then((b) => Array.from(new Uint8Array(b)).slice(0, 12).map((v) => v.toString(16).padStart(2, "0")).join(""))}`;
-    await db.insert(profiles).values({ id: userId, email: user.email, displayName: user.displayName }).onConflictDoNothing();
-
     const supportResult = await db
       .select({ count: sql<number>`count(distinct ${prayerSupports.prayerRequestId})` })
       .from(prayerSupports)
-      .where(and(eq(prayerSupports.userId, userId), sql`${prayerSupports.createdAt} >= datetime('now', '-24 hours')`));
+      .where(and(eq(prayerSupports.userId, profile.id), sql`${prayerSupports.createdAt} >= datetime('now', '-24 hours')`));
 
     const contributionCount = Number(supportResult[0]?.count ?? 0);
     if (!parsed.data.isEmergency && contributionCount < 3) {
@@ -84,7 +82,7 @@ export async function POST(request: Request) {
     const requestId = id("pr");
     await db.insert(prayerRequests).values({
       id: requestId,
-      authorId: userId,
+      authorId: profile.id,
       ...parsed.data,
       city: parsed.data.city || null,
       country: parsed.data.country || null,
