@@ -3,6 +3,7 @@ const prophetDuas = [
     prophet: "Yunus alayhissalom duosi",
     occasion: "Qiyinchilik va tavba paytida",
     arabic: "لَا إِلَٰهَ إِلَّا أَنتَ سُبْحَانَكَ إِنِّي كُنتُ مِنَ الظَّالِمِينَ",
+    reading: "La ilaha illa Anta, subhanaka, inni kuntu minaz-zolimin.",
     meaning: "Sendan o‘zga iloh yo‘q. Seni pok deb bilaman. Darhaqiqat, men xato qilganlardan bo‘ldim.",
     source: "Anbiyo surasi, 21:87",
     href: "https://quran.com/21/87",
@@ -11,6 +12,7 @@ const prophetDuas = [
     prophet: "Muso alayhissalom duosi",
     occasion: "Yaxshilik va rizqqa muhtojlikda",
     arabic: "رَبِّ إِنِّي لِمَا أَنزَلْتَ إِلَيَّ مِنْ خَيْرٍ فَقِيرٌ",
+    reading: "Robbi inni lima anzalta ilayya min xoyrin faqir.",
     meaning: "Robbim, Sen menga tushiradigan har qanday yaxshilikka muhtojman.",
     source: "Qasas surasi, 28:24",
     href: "https://quran.com/28/24",
@@ -19,6 +21,7 @@ const prophetDuas = [
     prophet: "Ibrohim alayhissalom duosi",
     occasion: "Oila va namoz uchun",
     arabic: "رَبِّ اجْعَلْنِي مُقِيمَ الصَّلَاةِ وَمِن ذُرِّيَّتِي رَبَّنَا وَتَقَبَّلْ دُعَاءِ",
+    reading: "Robbij’alni muqimas-solati va min zurriyyati, robbana va taqobbal duoi.",
     meaning: "Robbim, meni va zurriyotimni namozni to‘kis ado etuvchilardan qil. Robbimiz, duoyimni qabul et.",
     source: "Ibrohim surasi, 14:40",
     href: "https://quran.com/14/40",
@@ -27,6 +30,7 @@ const prophetDuas = [
     prophet: "Zakariyo alayhissalom duosi",
     occasion: "Solih zurriyot so‘raganda",
     arabic: "رَبِّ هَبْ لِي مِن لَّدُنكَ ذُرِّيَّةً طَيِّبَةً إِنَّكَ سَمِيعُ الدُّعَاءِ",
+    reading: "Robbi hab li min ladunka zurriyyatan toyyibatan, innaka sami’ud-duo.",
     meaning: "Robbim, menga O‘z huzuringdan pok zurriyot ato et. Albatta, Sen duoni eshituvchisan.",
     source: "Oli Imron surasi, 3:38",
     href: "https://quran.com/3/38",
@@ -46,6 +50,7 @@ export default function WelcomeView({ firstName, onEnter }: { firstName: string;
       <aside className="hadith-card">
         <span className="hadith-mark">☾</span>
         <p className="arabic compact" lang="ar" dir="rtl">دَعَا لِأَخِيهِ بِظَهْرِ الْغَيْبِ</p>
+        <p className="transliteration" lang="uz-Latn"><span>O‘qilishi:</span> Da’a li-axihi bi-zahril-g‘aybi.</p>
         <blockquote>“Musulmon birodari uchun uning yo‘qligida duo qilsa, farishta: «Omin, senga ham shunday bo‘lsin», deydi.”</blockquote>
         <a href="https://sunnah.com/muslim:2732a" target="_blank" rel="noreferrer">Sahih Muslim, 2732a ↗</a>
       </aside>
@@ -55,6 +60,7 @@ export default function WelcomeView({ firstName, onEnter }: { firstName: string;
       <div className="section-heading"><p className="eyebrow">QUR’ONDAGI BIRODARLIK DUOSI</p><h2 id="brother-prayer-title">Boshqani duoda eslash — qalblarni yaqinlashtiradi.</h2></div>
       <div className="verse-card">
         <p className="arabic" lang="ar" dir="rtl">رَبَّنَا اغْفِرْ لَنَا وَلِإِخْوَانِنَا الَّذِينَ سَبَقُونَا بِالْإِيمَانِ</p>
+        <p className="transliteration" lang="uz-Latn"><span>O‘qilishi:</span> Robbana, ig‘fir lana va li-ixvaninallazina sabaquna bil-iyman.</p>
         <p><b>Mazmuni:</b> “Robbimiz, bizni va imonda bizdan ilgari o‘tgan birodarlarimizni mag‘firat qil. Mo‘minlarga nisbatan qalbimizda gina qoldirma.”</p>
         <a href="https://quran.com/59/10" target="_blank" rel="noreferrer">Hashr surasi, 59:10 — oyatni to‘liq o‘qish ↗</a>
       </div>
@@ -71,7 +77,7 @@ export default function WelcomeView({ firstName, onEnter }: { firstName: string;
 
     <section className="prophet-section" aria-labelledby="prophet-title">
       <div className="section-heading"><p className="eyebrow">QUR’ONDAGI MASHHUR DUOLAR</p><h2 id="prophet-title">Payg‘ambarlar qilgan duolardan o‘rganamiz</h2><p>Tarjimalar oyat mazmunini qisqa tushuntirish uchun berildi. Asl oyatni havola orqali o‘qishingiz mumkin.</p></div>
-      <div className="dua-library">{prophetDuas.map((dua) => <article key={dua.source}><div><span>{dua.occasion}</span><h3>{dua.prophet}</h3></div><p className="arabic" lang="ar" dir="rtl">{dua.arabic}</p><p className="dua-meaning"><b>Mazmuni:</b> {dua.meaning}</p><a href={dua.href} target="_blank" rel="noreferrer">{dua.source} ↗</a></article>)}</div>
+      <div className="dua-library">{prophetDuas.map((dua) => <article key={dua.source}><div><span>{dua.occasion}</span><h3>{dua.prophet}</h3></div><p className="arabic" lang="ar" dir="rtl">{dua.arabic}</p><p className="transliteration" lang="uz-Latn"><span>O‘qilishi:</span> {dua.reading}</p><p className="dua-meaning"><b>Mazmuni:</b> {dua.meaning}</p><a href={dua.href} target="_blank" rel="noreferrer">{dua.source} ↗</a></article>)}</div>
     </section>
 
     <section className="welcome-cta"><span>♡</span><div><p className="eyebrow">DUODA BIRGAMIZ</p><h2>Bugun bir insonni duoda eslang.</h2><p>Mehr kichik bir niyatdan boshlanadi.</p></div><button className="primary-button" onClick={onEnter}>Duo oqimini ochish <span>→</span></button></section>

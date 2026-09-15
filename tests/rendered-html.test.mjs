@@ -49,8 +49,12 @@ test("opens with a guided faith-based welcome and top navigation", async () => {
   assert.match(welcome, /Muso alayhissalom duosi/);
   assert.match(welcome, /Ibrohim alayhissalom duosi/);
   assert.match(welcome, /Zakariyo alayhissalom duosi/);
+  assert.equal((welcome.match(/reading:/g) || []).length, 4);
+  assert.match(welcome, /O‘qilishi:<\/span> Da’a li-axihi bi-zahril-g‘aybi/);
+  assert.match(welcome, /O‘qilishi:<\/span> Robbana, ig‘fir lana/);
   assert.match(css, /\.welcome-hero/);
   assert.match(css, /\.navbar-links/);
+  assert.match(css, /\.transliteration/);
   assert.match(app, /className=\{`mobile-menu-toggle\$\{menuOpen \? " open" : ""\}`\}/);
   assert.match(app, /aria-expanded=\{menuOpen\}/);
   assert.match(app, /event\.key === "Escape"/);
