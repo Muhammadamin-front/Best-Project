@@ -141,14 +141,20 @@ test("layers a reduced-motion-friendly aurora behind the sonar grid", async () =
 });
 
 test("connects prayer cards to moderated support comments", async () => {
-  const [app, commentsApi, requestsApi] = await Promise.all([
+  const [app, commentsApi, requestsApi, css] = await Promise.all([
     readFile(files.app, "utf8"),
     readFile(files.commentsApi, "utf8"),
     readFile(new URL("../app/api/requests/route.ts", import.meta.url), "utf8"),
+    readFile(files.css, "utf8"),
   ]);
   assert.match(app, /function CommentPanel/);
+  assert.match(app, /function QuickCommentForm/);
+  assert.match(app, /className="quick-comment"/);
   assert.match(app, /\/api\/requests\/\$\{target\.id\}\/comments/);
+  assert.match(app, /\/api\/requests\/\$\{request\.id\}\/comments/);
+  assert.match(app, /onCommentPublished/);
   assert.match(app, /commentGuidance/);
+  assert.match(css, /\.quick-comment/);
   assert.match(commentsApi, /moderateText\(parsed\.data\.body\)/);
   assert.match(commentsApi, /support_comment/);
   assert.match(requestsApi, /commentCount:/);

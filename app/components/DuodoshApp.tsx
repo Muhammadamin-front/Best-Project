@@ -102,6 +102,12 @@ const categoryLabels: Record<string, Record<Language, string>> = {
   health: { uz: "Sog‘liq", en: "Health", ru: "Здоровье" }, family: { uz: "Oila", en: "Family", ru: "Семья" }, grief: { uz: "Musibat", en: "Grief", ru: "Утрата" }, work: { uz: "Ish va ta’lim", en: "Work & study", ru: "Работа и учёба" }, livelihood: { uz: "Rizq", en: "Livelihood", ru: "Благосостояние" }, emotional: { uz: "Ruhiy holat", en: "Emotional", ru: "Душевное состояние" }, general: { uz: "Umumiy", en: "General", ru: "Общее" }, other: { uz: "Boshqa", en: "Other", ru: "Другое" },
 };
 
+const quickCommentCopy = {
+  uz: { hint: "Samimiy va hukmsiz yozing.", success: "Daldangiz yetib bordi. Alloh rozi bo‘lsin.", signIn: "Dalda yozish uchun ChatGPT hisobingiz bilan kiring.", error: "Xabar yuborilmadi. Qayta urinib ko‘ring.", saving: "So‘rov saqlanmoqda…", send: "Daldani yuborish" },
+  en: { hint: "Keep it sincere and free of judgment.", success: "Your support was delivered. Thank you.", signIn: "Sign in with ChatGPT to write support.", error: "The message was not sent. Please try again.", saving: "Saving the request…", send: "Send support" },
+  ru: { hint: "Пишите искренне и без осуждения.", success: "Ваши слова поддержки отправлены.", signIn: "Войдите через ChatGPT, чтобы написать поддержку.", error: "Сообщение не отправлено. Попробуйте снова.", saving: "Просьба сохраняется…", send: "Отправить поддержку" },
+} as const;
+
 function Mark({ size = "normal" }: { size?: "normal" | "small" }) {
   return <span className={`brand-mark ${size}`} aria-hidden="true"><span>☾</span><i>•</i></span>;
 }
@@ -210,6 +216,10 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
     if (!target.id.startsWith("local-")) void fetch(`/api/requests/${target.id}/save`, { method: "POST" });
   }
 
+  function incrementComment(requestId: string) {
+    setRequests((items) => items.map((item) => item.id === requestId ? { ...item, commentCount: item.commentCount + 1 } : item));
+  }
+
   function submitRequest(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
@@ -269,7 +279,7 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
             {(view === "feed" || view === "saved" || view === "mine") && <>
               <div className="filter-row" role="tablist" aria-label="Filtrlar">{t.filters.map((label, index) => <button key={label} className={filter === index ? "filter active" : "filter"} onClick={() => setFilter(index)}>{label}</button>)}</div>
               <div className="request-list">
-                {visibleRequests.map((request) => <PrayerRequestCard key={request.id} request={request} t={t} language={language} onSupport={() => toggleSupport(request)} onSave={() => toggleSave(request)} onComment={() => setCommentTarget(request)} onResolve={() => setResolveTarget(request)} />)}
+                {visibleRequests.map((request) => <PrayerRequestCard key={request.id} request={request} t={t} language={language} onSupport={() => toggleSupport(request)} onSave={() => toggleSave(request)} onComment={() => setCommentTarget(request)} onCommentPublished={() => incrementComment(request.id)} onResolve={() => setResolveTarget(request)} />)}
                 {visibleRequests.length === 0 && <div className="empty-state"><span>♡</span><h2>{t.emptySaved}</h2><p>{t.emptySavedText}</p><button className="soft-button" onClick={() => setView("feed")}>{t.backFeed}</button></div>}
               </div>
             </>}
@@ -295,20 +305,66 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
       </main>
 
       {composerOpen && <Composer t={t} language={language} eligible={supportToday >= 3 || emergencyOverride} emergencyOverride={emergencyOverride} onEmergency={() => setEmergencyOverride(true)} onClose={() => setComposerOpen(false)} onSubmit={submitRequest} submitted={submitted} />}
-      {commentTarget && <CommentPanel key={commentTarget.id} target={commentTarget} t={t} language={language} viewerName={displayName} initial={initial} onClose={() => setCommentTarget(null)} onPublished={() => setRequests((items) => items.map((item) => item.id === commentTarget.id ? { ...item, commentCount: item.commentCount + 1 } : item))} />}
+      {commentTarget && <CommentPanel key={commentTarget.id} target={commentTarget} t={t} language={language} viewerName={displayName} initial={initial} onClose={() => setCommentTarget(null)} onPublished={() => incrementComment(commentTarget.id)} />}
       {resolveTarget && <ResolveDialog target={resolveTarget} t={t} onClose={() => setResolveTarget(null)} onResolved={() => { setRequests((items) => items.map((item) => item.id === resolveTarget.id ? { ...item, resolved: true, status: "resolved", urgent: false } : item)); if (resolveTarget.status === "published") setProfileStats((stats) => stats ? { ...stats, activeRequests: Math.max(0, stats.activeRequests - 1) } : stats); setResolveTarget(null); setNotice(t.resolveSuccess); window.setTimeout(() => setNotice(""), 3200); }} />}
       {notice && <div className="toast" role="status"><span>✓</span>{notice}</div>}
     </div>
   );
 }
 
-function PrayerRequestCard({ request, t, language, onSupport, onSave, onComment, onResolve }: { request: PrayerCard; t: typeof copy[Language]; language: Language; onSupport: () => void; onSave: () => void; onComment: () => void; onResolve: () => void }) {
+function PrayerRequestCard({ request, t, language, onSupport, onSave, onComment, onCommentPublished, onResolve }: { request: PrayerCard; t: typeof copy[Language]; language: Language; onSupport: () => void; onSave: () => void; onComment: () => void; onCommentPublished: () => void; onResolve: () => void }) {
   return <article className="request-card">
     <div className="request-head"><span className={`avatar ${request.anonymous ? "sage" : "amber"}`}>{request.avatar}</span><div><b>{request.author}</b><p><span>{request.city}</span><i>•</i><span>{request.time}</span></p></div><button aria-label="Ko‘proq">•••</button></div>
     <div className="request-body"><div className="badges"><span className={`category ${request.categoryKey}`}>{categoryLabels[request.categoryKey]?.[language] || request.category}</span>{request.urgent && <span className="urgent">Moderator tekshiruvida</span>}{request.resolved && <span className="resolved-badge">✓ {t.resolvedBadge}</span>}</div><h2>{request.title}</h2><p>{request.body}</p></div>
     <div className="request-stats"><span><b>{request.supportCount}</b> inson duoda esladi</span><span>{request.commentCount} {t.support}</span></div>
-    <div className="request-actions">{request.owned ? request.resolved ? <span className="resolved-state"><b>✓</b>{t.resolvedBadge}</span> : <button className="resolve" onClick={onResolve}><span>✓</span>{t.resolved}</button> : <button className={request.supported ? "pray active" : "pray"} onClick={onSupport}><span>{request.supported ? "✓" : "☾"}</span>{request.supported ? t.prayed : t.prayer}</button>}<button className={request.saved ? "save active" : "save"} onClick={onSave}><span>{request.saved ? "♥" : "♡"}</span>{request.saved ? t.saved : t.save}</button><button className="comment" aria-label={t.commentTitle} onClick={onComment}><span>◯</span>{t.commentTitle}</button></div>
+    <div className="request-actions">{request.owned ? request.resolved ? <span className="resolved-state"><b>✓</b>{t.resolvedBadge}</span> : <button className="resolve" onClick={onResolve}><span>✓</span>{t.resolved}</button> : <button className={request.supported ? "pray active" : "pray"} onClick={onSupport}><span>{request.supported ? "✓" : "☾"}</span>{request.supported ? t.prayed : t.prayer}</button>}<button className={request.saved ? "save active" : "save"} onClick={onSave}><span>{request.saved ? "♥" : "♡"}</span>{request.saved ? t.saved : t.save}</button></div>
+    <QuickCommentForm request={request} t={t} language={language} onOpen={onComment} onPublished={onCommentPublished} />
   </article>;
+}
+
+function QuickCommentForm({ request, t, language, onOpen, onPublished }: { request: PrayerCard; t: typeof copy[Language]; language: Language; onOpen: () => void; onPublished: () => void }) {
+  const [draft, setDraft] = useState("");
+  const [sending, setSending] = useState(false);
+  const [message, setMessage] = useState("");
+  const q = quickCommentCopy[language];
+  const isSaving = request.id.startsWith("local-");
+  const canComment = !request.resolved && !request.urgent;
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const body = draft.trim();
+    if (body.length < 2 || isSaving) return;
+    setSending(true);
+    setMessage("");
+    try {
+      const response = await fetch(`/api/requests/${request.id}/comments`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ body }) });
+      const result = await response.json() as { id?: string; status?: string; error?: string };
+      if (!response.ok) throw new Error(result.error || "Comment failed");
+      setDraft("");
+      if (result.status === "published" && result.id) {
+        onPublished();
+        setMessage(q.success);
+      } else {
+        setMessage(t.commentPending);
+      }
+    } catch (error) {
+      setMessage(error instanceof Error && /Authentication required/i.test(error.message) ? q.signIn : q.error);
+    } finally {
+      setSending(false);
+    }
+  }
+
+  return <div className="quick-comment">
+    {canComment && <form onSubmit={submit}>
+      <span className="quick-comment-icon" aria-hidden="true">♡</span>
+      <textarea name="body" rows={1} minLength={2} maxLength={600} value={draft} onChange={(event) => { setDraft(event.target.value); if (message) setMessage(""); }} disabled={sending || isSaving} placeholder={isSaving ? q.saving : t.commentPlaceholder} aria-label={t.commentPlaceholder} />
+      <button type="submit" disabled={sending || isSaving || draft.trim().length < 2} aria-label={q.send}>{sending ? "…" : "→"}</button>
+    </form>}
+    <div className="quick-comment-meta">
+      <span role="status">{message || (canComment ? q.hint : request.resolved ? t.resolvedBadge : t.commentPending)}</span>
+      <button type="button" onClick={onOpen}><span aria-hidden="true">◯</span>{request.commentCount > 0 ? `${request.commentCount} ${t.support}` : t.commentTitle}</button>
+    </div>
+  </div>;
 }
 
 function ResolveDialog({ target, t, onClose, onResolved }: { target: PrayerCard; t: typeof copy[Language]; onClose: () => void; onResolved: () => void }) {

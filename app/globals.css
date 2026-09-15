@@ -134,6 +134,7 @@ button { cursor: pointer; }
 .request-actions .save { margin-left: 14px; }
 .request-actions .save.active { color: #be6550; }
 .request-actions .comment { margin-left: auto; }
+.quick-comment { padding: 13px 16px 12px; border-top: 1px solid #edf0ee; background: linear-gradient(180deg,#fff,#fbfdfc); }.quick-comment form { display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: center; gap: 9px; }.quick-comment-icon { width: 31px; height: 31px; display: grid; place-items: center; border-radius: 50%; background: var(--green-soft); color: var(--green); font-size: 16px; }.quick-comment textarea { width: 100%; min-height: 39px; max-height: 110px; padding: 10px 11px; resize: vertical; border: 1px solid #dce6e0; border-radius: 11px; outline: 0; background: rgba(249,252,250,.9); color: var(--ink); font: 500 10px/1.5 var(--font-geist-sans),sans-serif; transition: border-color .2s,box-shadow .2s,background .2s; }.quick-comment textarea::placeholder { color: #9aa69f; }.quick-comment textarea:focus { border-color: #7eaa95; background: white; box-shadow: 0 0 0 3px rgba(23,107,80,.08); }.quick-comment textarea:disabled { opacity: .62; cursor: wait; }.quick-comment form > button { width: 37px; height: 37px; display: grid; place-items: center; border: 0; border-radius: 11px; background: var(--green); color: white; box-shadow: 0 6px 15px rgba(23,107,80,.16); font-size: 17px; font-weight: 700; }.quick-comment form > button:disabled { background: #c8d7d0; box-shadow: none; cursor: not-allowed; }.quick-comment-meta { min-height: 22px; margin: 6px 1px 0 40px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }.quick-comment-meta > span { color: #87958e; font-size: 7.5px; line-height: 1.45; }.quick-comment-meta > button { padding: 4px 0; display: inline-flex; align-items: center; gap: 5px; border: 0; background: transparent; color: var(--green); font-size: 8px; font-weight: 720; white-space: nowrap; }.quick-comment-meta > button span { font-size: 12px; }
 
 .right-rail { display: grid; align-content: start; gap: 14px; }
 .daily-card, .mosque-card { padding: 20px; border: 1px solid var(--line); border-radius: 16px; background: white; }
@@ -289,6 +290,7 @@ body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; 
   .request-head { padding-inline: 17px; }.request-body { padding-inline: 17px; }.request-stats { padding-inline: 17px; }
   .request-body > p { font-size: 11.5px; }
   .request-actions { padding-inline: 9px; }.request-actions .pray, .request-actions .resolve { min-width: 104px; }.request-actions button { font-size: 8.5px; }
+  .quick-comment { padding-inline: 12px; }.quick-comment-meta { margin-left: 0; }
   .feature-hero, .nearby-card, .profile-header, .settings-card { border-radius: 16px; }
 }
 
