@@ -5,6 +5,7 @@ import test from "node:test";
 const files = {
   page: new URL("../app/page.tsx", import.meta.url),
   app: new URL("../app/components/DuodoshApp.tsx", import.meta.url),
+  welcome: new URL("../app/components/WelcomeView.tsx", import.meta.url),
   componentsConfig: new URL("../components.json", import.meta.url),
   demo: new URL("../lib/demo-data.ts", import.meta.url),
   css: new URL("../app/globals.css", import.meta.url),
@@ -31,6 +32,25 @@ test("ships the Duodosh product rather than the starter", async () => {
   assert.match(demo, /Onamning operatsiyasi uchun duo qiling/);
   assert.match(app, /Masjid bilan bog‘lanish/);
   assert.doesNotMatch(`${page}${app}${layout}`, /codex-preview|react-loading-skeleton|Your site is taking shape/i);
+});
+
+test("opens with a guided faith-based welcome and top navigation", async () => {
+  const [app, welcome, css] = await Promise.all([
+    readFile(files.app, "utf8"),
+    readFile(files.welcome, "utf8"),
+    readFile(files.css, "utf8"),
+  ]);
+  assert.match(app, /useState<View>\("welcome"\)/);
+  assert.match(app, /className="site-navbar"/);
+  assert.doesNotMatch(app, /className="sidebar"/);
+  assert.match(welcome, /Sahih Muslim, 2732a/);
+  assert.match(welcome, /Hashr surasi, 59:10/);
+  assert.match(welcome, /Yunus alayhissalom duosi/);
+  assert.match(welcome, /Muso alayhissalom duosi/);
+  assert.match(welcome, /Ibrohim alayhissalom duosi/);
+  assert.match(welcome, /Zakariyo alayhissalom duosi/);
+  assert.match(css, /\.welcome-hero/);
+  assert.match(css, /\.navbar-links/);
 });
 
 test("keeps shadcn paths aligned with the existing Tailwind 4 project", async () => {

@@ -4,9 +4,10 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { categories, type PrayerRequestInput } from "../../lib/product";
 import { demoRequests, type PrayerCard } from "../../lib/demo-data";
 import NearbyMap from "./NearbyMap";
+import WelcomeView from "./WelcomeView";
 
 type Language = "uz" | "en" | "ru";
-type View = "feed" | "saved" | "mine" | "mosque" | "notifications" | "profile";
+type View = "welcome" | "feed" | "saved" | "mine" | "mosque" | "notifications" | "profile";
 type SupportComment = { id: string; body: string; author: string | null; createdAt: string };
 type NotificationItem = { id: string; type: string; title: string; body: string; readAt: string | null; createdAt: string };
 type ProfileData = { id?: string; displayName: string; city: string | null; country: string | null; preferredLanguage: Language; role?: string };
@@ -14,7 +15,7 @@ type ProfileStats = { supportToday: number; saved: number; activeRequests: numbe
 
 const copy = {
   uz: {
-    nav: { feed: "Duo oqimi", saved: "Saqlangan", mine: "Mening so‘rovlarim", mosque: "Masjidlar", notifications: "Bildirishnomalar", profile: "Profil" },
+    nav: { welcome: "Bosh sahifa", feed: "Duo oqimi", saved: "Saqlangan", mine: "So‘rovlarim", mosque: "Masjidlar", notifications: "Bildirishnomalar", profile: "Profil" },
     greeting: "Assalomu alaykum, Aziza",
     subtitle: "Bugun kimnidir duoda eslash uchun go‘zal kun.",
     search: "Niyatlar orasidan qidirish…",
@@ -77,7 +78,7 @@ const copy = {
     resolveSuccess: "So‘rov yakunlandi. Duodoshlaringizga xushxabar yuborildi.",
   },
   en: {
-    nav: { feed: "Prayer feed", saved: "Saved", mine: "My requests", mosque: "Mosques", notifications: "Notifications", profile: "Profile" },
+    nav: { welcome: "Home", feed: "Prayer feed", saved: "Saved", mine: "My requests", mosque: "Mosques", notifications: "Notifications", profile: "Profile" },
     greeting: "Assalamu alaikum, Aziza",
     subtitle: "Today is a beautiful day to remember someone in prayer.", search: "Search prayer requests…", newRequest: "Ask for prayer",
     filters: ["All", "Unanswered", "Near me", "Health", "Family", "Work & study"], prayer: "I prayed for you", prayed: "Prayer offered", save: "Save", saved: "Saved", support: "supports",
@@ -88,7 +89,7 @@ const copy = {
     composerTitle: "Write a prayer request", composerSubtitle: "Write sincerely. Do not include a phone number, exact address, or document number.", titleLabel: "Short title", titlePlaceholder: "For example: For my mother’s health", bodyLabel: "What should we pray for?", bodyPlaceholder: "Briefly explain your situation…", category: "Category", city: "City (optional)", anonymous: "Share anonymously", anonymousHelp: "Your name will not be shown publicly.", mosqueConsent: "I consent to sharing with a local mosque", emergency: "This is an urgent, highly sensitive situation", emergencyHelp: "Urgent requests are reviewed by a human moderator first.", publish: "Send for review", cancel: "Cancel", gateTitle: "Share compassion first", gateText: "Before a normal request, remember 3 different people in prayer. A comment is never required.", continueEmergency: "Write an urgent request", backFeed: "Return to prayer feed", emptySaved: "Your prayer list is empty", emptySavedText: "Save intentions you want to remember later.", successTitle: "Your request was received", successText: "It will receive a brief safety review before appearing.", resolved: "Alhamdulillah, resolved", resolvedBadge: "Resolved", resolveTitle: "Close this request?", resolveText: "The request will be marked resolved and everyone who remembered it in prayer will receive the good news.", resolveConfirm: "Yes, Alhamdulillah", resolveSuccess: "The request is resolved. Your supporters received the good news.",
   },
   ru: {
-    nav: { feed: "Лента дуа", saved: "Сохранённые", mine: "Мои просьбы", mosque: "Мечети", notifications: "Уведомления", profile: "Профиль" },
+    nav: { welcome: "Главная", feed: "Лента дуа", saved: "Сохранённые", mine: "Мои просьбы", mosque: "Мечети", notifications: "Уведомления", profile: "Профиль" },
     greeting: "Ассаляму алейкум, Азиза", subtitle: "Сегодня прекрасный день, чтобы вспомнить кого-то в дуа.", search: "Поиск просьб…", newRequest: "Попросить дуа",
     filters: ["Все", "Без ответа", "Рядом", "Здоровье", "Семья", "Работа и учёба"], prayer: "Я сделал дуа", prayed: "Дуа сделано", save: "Сохранить", saved: "Сохранено", support: "поддержки",
     commentTitle: "Добрая поддержка", commentIntro: "Дайте человеку почувствовать, что он не одинок.", commentPlaceholder: "Напишите короткие искренние слова…", commentSend: "Отправить", commentEmpty: "Поддержки пока нет. Оставьте первое доброе сообщение.", commentLoading: "Загрузка сообщений…", commentGuidance: "Не осуждайте и не давайте медицинских или религиозных заключений. Не указывайте телефон и точный адрес.", commentPending: "Сообщение отправлено на проверку безопасности.",
@@ -109,7 +110,7 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
   const [language, setLanguage] = useState<Language>("uz");
   const [profile, setProfile] = useState<ProfileData>({ displayName: viewerName, city: null, country: "O‘zbekiston", preferredLanguage: "uz" });
   const [profileStats, setProfileStats] = useState<ProfileStats | null>(null);
-  const [view, setView] = useState<View>("feed");
+  const [view, setView] = useState<View>("welcome");
   const [requests, setRequests] = useState<PrayerCard[]>(demoRequests);
   const [filter, setFilter] = useState(0);
   const [search, setSearch] = useState("");
@@ -127,6 +128,11 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
   const firstName = displayName.trim().split(/\s+/)[0] || "Duodosh";
   const initial = firstName.slice(0, 1).toUpperCase();
   const todayLabel = new Intl.DateTimeFormat(language === "uz" ? "uz-UZ" : language === "ru" ? "ru-RU" : "en-US", { day: "numeric", month: "long", timeZone: "Asia/Tashkent" }).format(new Date());
+
+  function goTo(next: View) {
+    setView(next);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 
   useEffect(() => {
     let active = true;
@@ -215,33 +221,26 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
   }
 
   const navItems: { key: View; icon: string }[] = [
-    { key: "feed", icon: "⌂" }, { key: "saved", icon: "♡" }, { key: "mine", icon: "◫" }, { key: "mosque", icon: "⌒" }, { key: "notifications", icon: "♢" }, { key: "profile", icon: "○" },
+    { key: "welcome", icon: "◌" }, { key: "feed", icon: "☾" }, { key: "saved", icon: "♡" }, { key: "mine", icon: "◫" }, { key: "mosque", icon: "⌒" },
   ];
 
   return (
     <div className="app-shell">
-      <aside className="sidebar">
-        <a className="brand" href="#top" aria-label="Duodosh bosh sahifa"><Mark /><span>duodosh</span></a>
-        <nav aria-label="Asosiy navigatsiya">
-          {navItems.map(({ key, icon }) => <button key={key} className={view === key ? "nav-item active" : "nav-item"} onClick={() => setView(key)}><span className="nav-icon">{icon}</span><span>{t.nav[key]}</span>{key === "notifications" && unreadNotifications > 0 && <b className="notification-dot">{unreadNotifications > 99 ? "99+" : unreadNotifications}</b>}</button>)}
-        </nav>
-        <div className="sidebar-kindness">
-          <span className="tiny-moon">☾</span>
-          <strong>{t.dailyTitle}</strong>
-          <p>“Bir-biringizni duoda unutmang.”</p>
-        </div>
-        <button className="user-card" onClick={() => setView("profile")}><span className="avatar coral">{initial}</span><span><b>{displayName}</b><small>{[profile.city, profile.country].filter(Boolean).join(", ") || "O‘zbekiston"}</small></span><span>•••</span></button>
-      </aside>
+      <header className="site-navbar">
+        <button className="navbar-brand" onClick={() => goTo("welcome")} aria-label="Duodosh bosh sahifa"><Mark /><span>duodosh</span></button>
+        <nav className="navbar-links" aria-label="Asosiy navigatsiya">{navItems.map(({ key, icon }) => <button key={key} className={view === key ? "active" : ""} onClick={() => goTo(key)}><span aria-hidden="true">{icon}</span>{t.nav[key]}</button>)}</nav>
+        <div className="navbar-actions"><select value={language} onChange={(event) => setLanguage(event.target.value as Language)} aria-label="Til"><option value="uz">UZ</option><option value="en">EN</option><option value="ru">RU</option></select><button className="navbar-notifications" aria-label={t.nav.notifications} onClick={() => goTo("notifications")}>♢{unreadNotifications > 0 && <i>{unreadNotifications > 9 ? "9+" : unreadNotifications}</i>}</button><button className="navbar-profile" onClick={() => goTo("profile")}><span className="avatar coral small">{initial}</span><b>{firstName}</b></button></div>
+      </header>
 
       <main className={requestView ? "main" : "main section-main"} id="top">
-        <header className="topbar">
-          <div className="mobile-brand"><Mark size="small" /><b>duodosh</b></div>
+        {view !== "welcome" && <header className="topbar">
           {requestView ? <label className="search"><span>⌕</span><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t.search} aria-label={t.search} /></label> : <div className="top-context"><span>DUODOSH</span><b>{t.nav[view]}</b></div>}
-          <div className="top-actions"><select value={language} onChange={(e) => setLanguage(e.target.value as Language)} aria-label="Til"><option value="uz">UZ</option><option value="en">EN</option><option value="ru">RU</option></select><button className="icon-button" aria-label={t.nav.notifications} onClick={() => setView("notifications")}>♢{unreadNotifications > 0 && <i>{unreadNotifications > 9 ? "9+" : unreadNotifications}</i>}</button><button className="avatar coral small" onClick={() => setView("profile")}>{initial}</button></div>
-        </header>
+          {requestView && <button className="primary-button toolbar-compose" onClick={() => { setComposerOpen(true); setSubmitted(false); setEmergencyOverride(false); }}><span>＋</span>{t.newRequest}</button>}
+        </header>}
 
-        <div className="content-grid">
+        <div className={view === "welcome" ? "content-grid welcome-grid" : "content-grid"}>
           <section className="feed-column">
+            {view === "welcome" && <WelcomeView firstName={firstName} onEnter={() => goTo("feed")} />}
             {requestView && <div className="welcome-row"><div><p className="eyebrow">DUODA BIRGAMIZ</p><h1>{view === "saved" ? t.nav.saved : view === "mine" ? t.nav.mine : `${language === "ru" ? "Ассаляму алейкум" : language === "en" ? "Assalamu alaikum" : "Assalomu alaykum"}, ${firstName}`}</h1><p>{view === "feed" ? t.subtitle : view === "saved" ? t.emptySavedText : "Siz ulashgan niyatlar shu yerda saqlanadi."}</p></div><button className="primary-button" onClick={() => { setComposerOpen(true); setSubmitted(false); setEmergencyOverride(false); }}><span>＋</span>{t.newRequest}</button></div>}
 
             {(view === "feed" || view === "saved" || view === "mine") && <>
@@ -256,7 +255,7 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
             {view === "profile" && <ProfileView profile={profile} stats={profileStats} initial={initial} onSaved={(next) => { setProfile(next); setLanguage(next.preferredLanguage); setNotice("Profil yangilandi"); window.setTimeout(() => setNotice(""), 2400); }} />}
           </section>
 
-          <aside className="right-rail">
+          {view !== "welcome" && <aside className="right-rail">
             <div className="daily-card">
               <div className="card-icon green">☾</div><h2>{t.dailyTitle}</h2><p>{t.dailyText}</p>
               <div className="progress-label"><span>{Math.min(supportToday, 3)} / 3 {t.progress}</span><b>{Math.round(Math.min(supportToday / 3, 1) * 100)}%</b></div>
@@ -266,11 +265,10 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
             <div className="mosque-card"><div className="mosque-art" aria-hidden="true"><span>☾</span><div>⌒</div></div><h2>{t.mosqueTitle}</h2><p>{t.mosqueText}</p><button onClick={() => setView("mosque")}>{t.learn}<span>→</span></button></div>
             <div className="safety-card"><span>♢</span><div><h3>{t.safety}</h3><p>{t.safetyText}</p></div></div>
             <div className="footer-links"><a href="#community">Hamjamiyat qoidalari</a><a href="#privacy">Maxfiylik</a><a href="#help">Yordam</a><small>© 2026 Duodosh</small></div>
-          </aside>
+          </aside>}
         </div>
 
-        <nav className="mobile-nav" aria-label="Mobil navigatsiya">{navItems.slice(0, 5).map(({ key, icon }) => <button key={key} className={view === key ? "active" : ""} onClick={() => setView(key)}><span>{icon}</span><small>{t.nav[key].split(" ")[0]}</small></button>)}</nav>
-        <button className="mobile-compose" aria-label={t.newRequest} onClick={() => { setComposerOpen(true); setSubmitted(false); }}>＋</button>
+        {view !== "welcome" && <button className="mobile-compose" aria-label={t.newRequest} onClick={() => { setComposerOpen(true); setSubmitted(false); }}>＋</button>}
       </main>
 
       {composerOpen && <Composer t={t} language={language} eligible={supportToday >= 3 || emergencyOverride} emergencyOverride={emergencyOverride} onEmergency={() => setEmergencyOverride(true)} onClose={() => setComposerOpen(false)} onSubmit={submitRequest} submitted={submitted} />}

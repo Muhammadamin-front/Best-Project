@@ -5,6 +5,8 @@ Duodosh is a privacy-first Muslim mutual-support platform for sharing prayer req
 ## What is included
 
 - Mobile-first prayer feed with fair, low-support-first ranking
+- Guided welcome page with sourced Qur’an verses, hadith, and prophetic supplications
+- Responsive top navigation that keeps the prayer feed one clear step away
 - “Duo qildim” and private save interactions
 - Configurable three-support contribution gate
 - Anonymous requests and mosque-referral consent
