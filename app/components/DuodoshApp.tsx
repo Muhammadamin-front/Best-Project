@@ -313,7 +313,11 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
 }
 
 function PrayerRequestCard({ request, t, language, onSupport, onSave, onComment, onCommentPublished, onResolve }: { request: PrayerCard; t: typeof copy[Language]; language: Language; onSupport: () => void; onSave: () => void; onComment: () => void; onCommentPublished: () => void; onResolve: () => void }) {
-  return <article className="request-card">
+  return <article className="request-card" onPointerMove={(event) => {
+    const bounds = event.currentTarget.getBoundingClientRect();
+    event.currentTarget.style.setProperty("--card-x", `${event.clientX - bounds.left}px`);
+    event.currentTarget.style.setProperty("--card-y", `${event.clientY - bounds.top}px`);
+  }}>
     <div className="request-head"><span className={`avatar ${request.anonymous ? "sage" : "amber"}`}>{request.avatar}</span><div><b>{request.author}</b><p><span>{request.city}</span><i>•</i><span>{request.time}</span></p></div><button aria-label="Ko‘proq">•••</button></div>
     <div className="request-body"><div className="badges"><span className={`category ${request.categoryKey}`}>{categoryLabels[request.categoryKey]?.[language] || request.category}</span>{request.urgent && <span className="urgent">Moderator tekshiruvida</span>}{request.resolved && <span className="resolved-badge">✓ {t.resolvedBadge}</span>}</div><h2>{request.title}</h2><p>{request.body}</p></div>
     <div className="request-stats"><span><b>{request.supportCount}</b> inson duoda esladi</span><span>{request.commentCount} {t.support}</span></div>

@@ -1,3 +1,8 @@
+"use client";
+
+import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useState } from "react";
+
 const prophetDuas = [
   {
     prophet: "Yunus alayhissalom duosi",
@@ -37,12 +42,43 @@ const prophetDuas = [
   },
 ];
 
+function TypingHeadline({ text }: { text: string }) {
+  const reduceMotion = useReducedMotion();
+  const [visible, setVisible] = useState("");
+  const [complete, setComplete] = useState(false);
+
+  useEffect(() => {
+    if (reduceMotion) {
+      setVisible(text);
+      setComplete(true);
+      return;
+    }
+    let index = 0;
+    let timer = 0;
+    const typeNext = () => {
+      index += 1;
+      setVisible(text.slice(0, index));
+      if (index < text.length) timer = window.setTimeout(typeNext, index % 5 === 0 ? 58 : 36);
+      else setComplete(true);
+    };
+    timer = window.setTimeout(typeNext, 280);
+    return () => window.clearTimeout(timer);
+  }, [reduceMotion, text]);
+
+  return <span className="typing-headline" aria-label={text}>
+    <span className="typing-placeholder" aria-hidden="true">{text}</span>
+    <span className="typing-output" aria-hidden="true">{visible}<i className={complete ? "typing-caret complete" : "typing-caret"} /></span>
+  </span>;
+}
+
 export default function WelcomeView({ firstName, onEnter }: { firstName: string; onEnter: () => void }) {
+  const reduceMotion = useReducedMotion();
+
   return <div className="welcome-view">
     <section className="welcome-hero">
       <div className="welcome-copy">
         <p className="eyebrow">ASSALOMU ALAYKUM, {firstName.toUpperCase()}</p>
-        <h1>Bir duoda uchrashadigan mehrli hamjamiyat.</h1>
+        <h1><TypingHeadline text="Bir duoda uchrashadigan mehrli hamjamiyat." /></h1>
         <p className="welcome-lead">Duodosh — tashvishingizni odob bilan ulashish, boshqa musulmonlarni duoda eslash va yolg‘iz emasligingizni his qilish uchun xavfsiz makon.</p>
         <div className="welcome-actions"><button className="primary-button welcome-primary" onClick={onEnter}>Bismillah, duo oqimiga kirish <span>→</span></button><a className="welcome-secondary" href="#qanday-ishlaydi">Avval qanday ishlashini ko‘ring</a></div>
         <div className="welcome-trust"><span>◌ Anonim ulashish</span><span>♡ Hukmsiz dalda</span><span>⌒ Tasdiqlangan masjidlar</span></div>
@@ -77,7 +113,7 @@ export default function WelcomeView({ firstName, onEnter }: { firstName: string;
 
     <section className="prophet-section" aria-labelledby="prophet-title">
       <div className="section-heading"><p className="eyebrow">QUR’ONDAGI MASHHUR DUOLAR</p><h2 id="prophet-title">Payg‘ambarlar qilgan duolardan o‘rganamiz</h2><p>Tarjimalar oyat mazmunini qisqa tushuntirish uchun berildi. Asl oyatni havola orqali o‘qishingiz mumkin.</p></div>
-      <div className="dua-library">{prophetDuas.map((dua) => <article key={dua.source}><div><span>{dua.occasion}</span><h3>{dua.prophet}</h3></div><p className="arabic" lang="ar" dir="rtl">{dua.arabic}</p><p className="transliteration" lang="uz-Latn"><span>O‘qilishi:</span> {dua.reading}</p><p className="dua-meaning"><b>Mazmuni:</b> {dua.meaning}</p><a href={dua.href} target="_blank" rel="noreferrer">{dua.source} ↗</a></article>)}</div>
+      <div className="dua-library">{prophetDuas.map((dua, index) => <motion.article key={dua.source} initial={reduceMotion ? { opacity: 1 } : { opacity: 0, y: 28, scale: .985 }} whileInView={{ opacity: 1, y: 0, scale: 1 }} viewport={{ once: true, amount: .18 }} transition={reduceMotion ? { duration: 0 } : { duration: .5, delay: index * .07, ease: [.22, 1, .36, 1] }}><div><span>{dua.occasion}</span><h3>{dua.prophet}</h3></div><p className="arabic" lang="ar" dir="rtl">{dua.arabic}</p><p className="transliteration" lang="uz-Latn"><span>O‘qilishi:</span> {dua.reading}</p><p className="dua-meaning"><b>Mazmuni:</b> {dua.meaning}</p><a href={dua.href} target="_blank" rel="noreferrer">{dua.source} ↗</a></motion.article>)}</div>
     </section>
 
     <section className="welcome-cta"><span>♡</span><div><p className="eyebrow">DUODA BIRGAMIZ</p><h2>Bugun bir insonni duoda eslang.</h2><p>Mehr kichik bir niyatdan boshlanadi.</p></div><button className="primary-button" onClick={onEnter}>Duo oqimini ochish <span>→</span></button></section>
