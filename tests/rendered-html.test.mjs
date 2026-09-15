@@ -51,6 +51,11 @@ test("opens with a guided faith-based welcome and top navigation", async () => {
   assert.match(welcome, /Zakariyo alayhissalom duosi/);
   assert.match(css, /\.welcome-hero/);
   assert.match(css, /\.navbar-links/);
+  assert.match(app, /className=\{`mobile-menu-toggle\$\{menuOpen \? " open" : ""\}`\}/);
+  assert.match(app, /aria-expanded=\{menuOpen\}/);
+  assert.match(app, /event\.key === "Escape"/);
+  assert.match(css, /\.navbar-links\.open/);
+  assert.match(css, /\.mobile-menu-backdrop/);
 });
 
 test("keeps shadcn paths aligned with the existing Tailwind 4 project", async () => {

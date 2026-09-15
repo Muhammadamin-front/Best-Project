@@ -111,6 +111,7 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
   const [profile, setProfile] = useState<ProfileData>({ displayName: viewerName, city: null, country: "O‘zbekiston", preferredLanguage: "uz" });
   const [profileStats, setProfileStats] = useState<ProfileStats | null>(null);
   const [view, setView] = useState<View>("welcome");
+  const [menuOpen, setMenuOpen] = useState(false);
   const [requests, setRequests] = useState<PrayerCard[]>(demoRequests);
   const [filter, setFilter] = useState(0);
   const [search, setSearch] = useState("");
@@ -131,8 +132,21 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
 
   function goTo(next: View) {
     setView(next);
+    setMenuOpen(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const closeMenu = (event: KeyboardEvent) => event.key === "Escape" && setMenuOpen(false);
+    const closeOnDesktop = () => window.innerWidth > 760 && setMenuOpen(false);
+    window.addEventListener("keydown", closeMenu);
+    window.addEventListener("resize", closeOnDesktop);
+    return () => {
+      window.removeEventListener("keydown", closeMenu);
+      window.removeEventListener("resize", closeOnDesktop);
+    };
+  }, [menuOpen]);
 
   useEffect(() => {
     let active = true;
@@ -228,9 +242,18 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
     <div className="app-shell">
       <header className="site-navbar">
         <button className="navbar-brand" onClick={() => goTo("welcome")} aria-label="Duodosh bosh sahifa"><Mark /><span>duodosh</span></button>
-        <nav className="navbar-links" aria-label="Asosiy navigatsiya">{navItems.map(({ key, icon }) => <button key={key} className={view === key ? "active" : ""} onClick={() => goTo(key)}><span aria-hidden="true">{icon}</span>{t.nav[key]}</button>)}</nav>
+        <nav id="mobile-primary-menu" className={`navbar-links${menuOpen ? " open" : ""}`} aria-label="Asosiy navigatsiya">
+          {navItems.map(({ key, icon }) => <button key={key} className={view === key ? "active" : ""} onClick={() => goTo(key)}><span aria-hidden="true">{icon}</span>{t.nav[key]}</button>)}
+          <div className="mobile-menu-meta">
+            <button className={view === "notifications" ? "mobile-menu-notification active" : "mobile-menu-notification"} onClick={() => goTo("notifications")}><span aria-hidden="true">♢</span><span>{t.nav.notifications}</span>{unreadNotifications > 0 && <i>{unreadNotifications > 9 ? "9+" : unreadNotifications}</i>}</button>
+            <button className={view === "profile" ? "mobile-menu-profile active" : "mobile-menu-profile"} onClick={() => goTo("profile")}><span className="avatar coral small">{initial}</span><span><b>{firstName}</b><small>{profile.city || profile.country || "Duodosh"}</small></span><i aria-hidden="true">→</i></button>
+            <label className="mobile-menu-language"><span>Til</span><select value={language} onChange={(event) => setLanguage(event.target.value as Language)} aria-label="Til"><option value="uz">O‘zbekcha</option><option value="en">English</option><option value="ru">Русский</option></select></label>
+          </div>
+        </nav>
         <div className="navbar-actions"><select value={language} onChange={(event) => setLanguage(event.target.value as Language)} aria-label="Til"><option value="uz">UZ</option><option value="en">EN</option><option value="ru">RU</option></select><button className="navbar-notifications" aria-label={t.nav.notifications} onClick={() => goTo("notifications")}>♢{unreadNotifications > 0 && <i>{unreadNotifications > 9 ? "9+" : unreadNotifications}</i>}</button><button className="navbar-profile" onClick={() => goTo("profile")}><span className="avatar coral small">{initial}</span><b>{firstName}</b></button></div>
+        <button className={`mobile-menu-toggle${menuOpen ? " open" : ""}`} type="button" aria-expanded={menuOpen} aria-controls="mobile-primary-menu" aria-label={menuOpen ? "Menyuni yopish" : "Menyuni ochish"} onClick={() => setMenuOpen((open) => !open)}><span /><span /><span /></button>
       </header>
+      {menuOpen && <button className="mobile-menu-backdrop" type="button" aria-label="Menyuni yopish" onClick={() => setMenuOpen(false)} />}
 
       <main className={requestView ? "main" : "main section-main"} id="top">
         {view !== "welcome" && <header className="topbar">
