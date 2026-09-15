@@ -14,6 +14,7 @@ const files = {
   aurora: new URL("../components/ui/aurora-background.tsx", import.meta.url),
   sonar: new URL("../components/ui/sonar-grid.tsx", import.meta.url),
   commentsApi: new URL("../app/api/requests/[id]/comments/route.ts", import.meta.url),
+  resolveApi: new URL("../app/api/requests/[id]/resolve/route.ts", import.meta.url),
   notificationsApi: new URL("../app/api/notifications/route.ts", import.meta.url),
 };
 
@@ -151,4 +152,23 @@ test("loads, edits, and persists the signed-in profile", async () => {
   assert.match(meApi, /profileUpdateSchema/);
   assert.match(meApi, /preferredLanguage: next\.preferredLanguage/);
   assert.match(css, /\.profile-editor/);
+});
+
+test("lets request owners resolve a prayer and notify its supporters", async () => {
+  const [app, requestsApi, resolveApi, css] = await Promise.all([
+    readFile(files.app, "utf8"),
+    readFile(new URL("../app/api/requests/route.ts", import.meta.url), "utf8"),
+    readFile(files.resolveApi, "utf8"),
+    readFile(files.css, "utf8"),
+  ]);
+  assert.match(app, /function ResolveDialog/);
+  assert.match(app, /\/api\/requests\/\$\{target\.id\}\/resolve/);
+  assert.match(app, /request\.owned/);
+  assert.match(requestsApi, /ownedByViewer/);
+  assert.match(requestsApi, /resolvedAt/);
+  assert.match(resolveApi, /Only the request owner can resolve it/);
+  assert.match(resolveApi, /request_resolved/);
+  assert.match(resolveApi, /db\.batch/);
+  assert.match(css, /\.resolve-dialog/);
+  assert.match(css, /\.resolved-badge/);
 });

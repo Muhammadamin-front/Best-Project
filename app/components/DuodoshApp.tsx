@@ -70,6 +70,11 @@ const copy = {
     successTitle: "So‘rovingiz qabul qilindi",
     successText: "Hamjamiyat xavfsizligi uchun so‘rov qisqa tekshiruvdan o‘tadi.",
     resolved: "Alhamdulillah, hal bo‘ldi",
+    resolvedBadge: "Yakunlandi",
+    resolveTitle: "So‘rovni yakunlaysizmi?",
+    resolveText: "So‘rov “hal bo‘ldi” holatiga o‘tadi va uni duoda eslagan insonlarga xushxabar yuboriladi.",
+    resolveConfirm: "Ha, Alhamdulillah",
+    resolveSuccess: "So‘rov yakunlandi. Duodoshlaringizga xushxabar yuborildi.",
   },
   en: {
     nav: { feed: "Prayer feed", saved: "Saved", mine: "My requests", mosque: "Mosques", notifications: "Notifications", profile: "Profile" },
@@ -80,7 +85,7 @@ const copy = {
     notificationAll: "All", notificationUnread: "Unread", notificationMarkAll: "Mark all as read", notificationEmpty: "No notifications yet", notificationEmptyText: "When someone remembers your request in prayer or leaves support, you will see it here.",
     dailyTitle: "Today’s intention", dailyText: "Remember at least three people sincerely. A real person is behind every request.", progress: "prayers offered",
     mosqueTitle: "Connect with a mosque", mosqueText: "With your consent, a request can be shared with a verified local mosque.", learn: "How does it work?", safety: "A safe community", safetyText: "A private, compassionate space without judgment.",
-    composerTitle: "Write a prayer request", composerSubtitle: "Write sincerely. Do not include a phone number, exact address, or document number.", titleLabel: "Short title", titlePlaceholder: "For example: For my mother’s health", bodyLabel: "What should we pray for?", bodyPlaceholder: "Briefly explain your situation…", category: "Category", city: "City (optional)", anonymous: "Share anonymously", anonymousHelp: "Your name will not be shown publicly.", mosqueConsent: "I consent to sharing with a local mosque", emergency: "This is an urgent, highly sensitive situation", emergencyHelp: "Urgent requests are reviewed by a human moderator first.", publish: "Send for review", cancel: "Cancel", gateTitle: "Share compassion first", gateText: "Before a normal request, remember 3 different people in prayer. A comment is never required.", continueEmergency: "Write an urgent request", backFeed: "Return to prayer feed", emptySaved: "Your prayer list is empty", emptySavedText: "Save intentions you want to remember later.", successTitle: "Your request was received", successText: "It will receive a brief safety review before appearing.", resolved: "Alhamdulillah, resolved",
+    composerTitle: "Write a prayer request", composerSubtitle: "Write sincerely. Do not include a phone number, exact address, or document number.", titleLabel: "Short title", titlePlaceholder: "For example: For my mother’s health", bodyLabel: "What should we pray for?", bodyPlaceholder: "Briefly explain your situation…", category: "Category", city: "City (optional)", anonymous: "Share anonymously", anonymousHelp: "Your name will not be shown publicly.", mosqueConsent: "I consent to sharing with a local mosque", emergency: "This is an urgent, highly sensitive situation", emergencyHelp: "Urgent requests are reviewed by a human moderator first.", publish: "Send for review", cancel: "Cancel", gateTitle: "Share compassion first", gateText: "Before a normal request, remember 3 different people in prayer. A comment is never required.", continueEmergency: "Write an urgent request", backFeed: "Return to prayer feed", emptySaved: "Your prayer list is empty", emptySavedText: "Save intentions you want to remember later.", successTitle: "Your request was received", successText: "It will receive a brief safety review before appearing.", resolved: "Alhamdulillah, resolved", resolvedBadge: "Resolved", resolveTitle: "Close this request?", resolveText: "The request will be marked resolved and everyone who remembered it in prayer will receive the good news.", resolveConfirm: "Yes, Alhamdulillah", resolveSuccess: "The request is resolved. Your supporters received the good news.",
   },
   ru: {
     nav: { feed: "Лента дуа", saved: "Сохранённые", mine: "Мои просьбы", mosque: "Мечети", notifications: "Уведомления", profile: "Профиль" },
@@ -88,7 +93,7 @@ const copy = {
     filters: ["Все", "Без ответа", "Рядом", "Здоровье", "Семья", "Работа и учёба"], prayer: "Я сделал дуа", prayed: "Дуа сделано", save: "Сохранить", saved: "Сохранено", support: "поддержки",
     commentTitle: "Добрая поддержка", commentIntro: "Дайте человеку почувствовать, что он не одинок.", commentPlaceholder: "Напишите короткие искренние слова…", commentSend: "Отправить", commentEmpty: "Поддержки пока нет. Оставьте первое доброе сообщение.", commentLoading: "Загрузка сообщений…", commentGuidance: "Не осуждайте и не давайте медицинских или религиозных заключений. Не указывайте телефон и точный адрес.", commentPending: "Сообщение отправлено на проверку безопасности.",
     notificationAll: "Все", notificationUnread: "Непрочитанные", notificationMarkAll: "Отметить все прочитанными", notificationEmpty: "Уведомлений пока нет", notificationEmptyText: "Когда кто-то вспомнит вашу просьбу в дуа или оставит поддержку, вы увидите это здесь.",
-    dailyTitle: "Намерение дня", dailyText: "Искренне вспомните в дуа хотя бы трёх людей. За каждой просьбой стоит человек.", progress: "дуа сделано", mosqueTitle: "Связаться с мечетью", mosqueText: "С вашего согласия просьба может быть передана проверенной местной мечети.", learn: "Как это работает?", safety: "Безопасное сообщество", safetyText: "Приватное и доброе пространство без осуждения.", composerTitle: "Напишите просьбу о дуа", composerSubtitle: "Не указывайте телефон, точный адрес или номер документа.", titleLabel: "Краткий заголовок", titlePlaceholder: "Например: За здоровье мамы", bodyLabel: "О чём сделать дуа?", bodyPlaceholder: "Кратко опишите ситуацию…", category: "Тема", city: "Город (необязательно)", anonymous: "Опубликовать анонимно", anonymousHelp: "Ваше имя не будет показано.", mosqueConsent: "Согласен передать местной мечети", emergency: "Это срочная и тяжёлая ситуация", emergencyHelp: "Срочные просьбы сначала проверяет модератор.", publish: "Отправить на проверку", cancel: "Отмена", gateTitle: "Сначала поделитесь заботой", gateText: "Перед обычной просьбой вспомните в дуа 3 разных людей. Комментарий не обязателен.", continueEmergency: "Написать срочную просьбу", backFeed: "Вернуться в ленту", emptySaved: "Ваш список дуа пока пуст", emptySavedText: "Сохраните намерения, которые хотите вспомнить позже.", successTitle: "Просьба принята", successText: "Она пройдёт краткую проверку безопасности.", resolved: "Альхамдулиллях, решено",
+    dailyTitle: "Намерение дня", dailyText: "Искренне вспомните в дуа хотя бы трёх людей. За каждой просьбой стоит человек.", progress: "дуа сделано", mosqueTitle: "Связаться с мечетью", mosqueText: "С вашего согласия просьба может быть передана проверенной местной мечети.", learn: "Как это работает?", safety: "Безопасное сообщество", safetyText: "Приватное и доброе пространство без осуждения.", composerTitle: "Напишите просьбу о дуа", composerSubtitle: "Не указывайте телефон, точный адрес или номер документа.", titleLabel: "Краткий заголовок", titlePlaceholder: "Например: За здоровье мамы", bodyLabel: "О чём сделать дуа?", bodyPlaceholder: "Кратко опишите ситуацию…", category: "Тема", city: "Город (необязательно)", anonymous: "Опубликовать анонимно", anonymousHelp: "Ваше имя не будет показано.", mosqueConsent: "Согласен передать местной мечети", emergency: "Это срочная и тяжёлая ситуация", emergencyHelp: "Срочные просьбы сначала проверяет модератор.", publish: "Отправить на проверку", cancel: "Отмена", gateTitle: "Сначала поделитесь заботой", gateText: "Перед обычной просьбой вспомните в дуа 3 разных людей. Комментарий не обязателен.", continueEmergency: "Написать срочную просьбу", backFeed: "Вернуться в ленту", emptySaved: "Ваш список дуа пока пуст", emptySavedText: "Сохраните намерения, которые хотите вспомнить позже.", successTitle: "Просьба принята", successText: "Она пройдёт краткую проверку безопасности.", resolved: "Альхамдулиллях, решено", resolvedBadge: "Завершено", resolveTitle: "Завершить просьбу?", resolveText: "Просьба будет отмечена решённой, а все, кто вспоминал её в дуа, получат добрую весть.", resolveConfirm: "Да, Альхамдулиллях", resolveSuccess: "Просьба завершена. Поддержавшие вас получили добрую весть.",
   },
 } as const;
 
@@ -112,6 +117,7 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
   const [emergencyOverride, setEmergencyOverride] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [commentTarget, setCommentTarget] = useState<PrayerCard | null>(null);
+  const [resolveTarget, setResolveTarget] = useState<PrayerCard | null>(null);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [notice, setNotice] = useState("");
   const t = copy[language];
@@ -132,7 +138,7 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
           id: String(item.id), author: String(item.author || "Duodosh a’zosi"), avatar: String(item.author || "D").slice(0, 1).toUpperCase(),
           title: String(item.title), body: String(item.body), category: String(item.category), categoryKey: String(item.category), city: String(item.city || "O‘zbekiston"),
           time: "Yaqinda", supportCount: Number(item.supportCount || 0), commentCount: Number(item.commentCount || 0), supported: Boolean(item.supported), saved: Boolean(item.saved),
-          anonymous: Boolean(item.isAnonymous), urgent: Boolean(item.isEmergency),
+          owned: Boolean(item.ownedByViewer), status: String(item.status || "published"), resolved: String(item.status) === "resolved", anonymous: Boolean(item.isAnonymous), urgent: String(item.status) === "pending_moderation",
         })));
       })
       .catch(() => undefined);
@@ -159,7 +165,7 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
   }, []);
 
   const visibleRequests = useMemo(() => {
-    let next = view === "saved" ? requests.filter((item) => item.saved) : view === "mine" ? requests.filter((item) => item.id.startsWith("local-")) : requests;
+    let next = view === "saved" ? requests.filter((item) => item.saved) : view === "mine" ? requests.filter((item) => item.owned) : requests.filter((item) => !item.resolved);
     if (filter === 1) next = next.filter((item) => item.supportCount < 10);
     if (filter === 2) next = next.filter((item) => ["Toshkent", "Samarqand"].includes(item.city));
     if (filter >= 3) {
@@ -194,14 +200,14 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
       mosqueReferralConsent: form.get("mosque") === "on", isEmergency: emergencyOverride || form.get("emergency") === "on",
     };
     const localId = `local-${Date.now()}`;
-    const newCard: PrayerCard = { id: localId, author: payload.isAnonymous ? "Anonim duodosh" : firstName, avatar: payload.isAnonymous ? "D" : initial, title: payload.title, body: payload.body, category: categoryLabels[categoryKey][language], categoryKey, city: payload.city || "O‘zbekiston", time: "Hozirgina", supportCount: 0, commentCount: 0, supported: false, saved: false, anonymous: payload.isAnonymous, urgent: payload.isEmergency };
+    const newCard: PrayerCard = { id: localId, author: payload.isAnonymous ? "Anonim duodosh" : firstName, avatar: payload.isAnonymous ? "D" : initial, title: payload.title, body: payload.body, category: categoryLabels[categoryKey][language], categoryKey, city: payload.city || "O‘zbekiston", time: "Hozirgina", supportCount: 0, commentCount: 0, supported: false, saved: false, owned: true, status: payload.isEmergency ? "pending_moderation" : "published", anonymous: payload.isAnonymous, urgent: payload.isEmergency };
     setRequests((items) => [newCard, ...items]);
     setSubmitted(true);
     void fetch("/api/requests", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) })
       .then(async (response) => response.ok ? response.json() : Promise.reject(new Error("Create failed")))
       .then((result: { id?: string; status?: string }) => {
         if (result.id) {
-          setRequests((items) => items.map((item) => item.id === localId ? { ...item, id: result.id as string, urgent: result.status === "pending_moderation" } : item));
+          setRequests((items) => items.map((item) => item.id === localId ? { ...item, id: result.id as string, status: result.status, urgent: result.status === "pending_moderation" } : item));
           if (result.status === "published") setProfileStats((stats) => stats ? { ...stats, activeRequests: stats.activeRequests + 1 } : stats);
         }
       })
@@ -241,7 +247,7 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
             {(view === "feed" || view === "saved" || view === "mine") && <>
               <div className="filter-row" role="tablist" aria-label="Filtrlar">{t.filters.map((label, index) => <button key={label} className={filter === index ? "filter active" : "filter"} onClick={() => setFilter(index)}>{label}</button>)}</div>
               <div className="request-list">
-                {visibleRequests.map((request) => <PrayerRequestCard key={request.id} request={request} t={t} language={language} onSupport={() => toggleSupport(request)} onSave={() => toggleSave(request)} onComment={() => setCommentTarget(request)} />)}
+                {visibleRequests.map((request) => <PrayerRequestCard key={request.id} request={request} t={t} language={language} onSupport={() => toggleSupport(request)} onSave={() => toggleSave(request)} onComment={() => setCommentTarget(request)} onResolve={() => setResolveTarget(request)} />)}
                 {visibleRequests.length === 0 && <div className="empty-state"><span>♡</span><h2>{t.emptySaved}</h2><p>{t.emptySavedText}</p><button className="soft-button" onClick={() => setView("feed")}>{t.backFeed}</button></div>}
               </div>
             </>}
@@ -269,18 +275,46 @@ export default function DuodoshApp({ viewerName }: { viewerName: string }) {
 
       {composerOpen && <Composer t={t} language={language} eligible={supportToday >= 3 || emergencyOverride} emergencyOverride={emergencyOverride} onEmergency={() => setEmergencyOverride(true)} onClose={() => setComposerOpen(false)} onSubmit={submitRequest} submitted={submitted} />}
       {commentTarget && <CommentPanel key={commentTarget.id} target={commentTarget} t={t} language={language} viewerName={displayName} initial={initial} onClose={() => setCommentTarget(null)} onPublished={() => setRequests((items) => items.map((item) => item.id === commentTarget.id ? { ...item, commentCount: item.commentCount + 1 } : item))} />}
+      {resolveTarget && <ResolveDialog target={resolveTarget} t={t} onClose={() => setResolveTarget(null)} onResolved={() => { setRequests((items) => items.map((item) => item.id === resolveTarget.id ? { ...item, resolved: true, status: "resolved", urgent: false } : item)); if (resolveTarget.status === "published") setProfileStats((stats) => stats ? { ...stats, activeRequests: Math.max(0, stats.activeRequests - 1) } : stats); setResolveTarget(null); setNotice(t.resolveSuccess); window.setTimeout(() => setNotice(""), 3200); }} />}
       {notice && <div className="toast" role="status"><span>✓</span>{notice}</div>}
     </div>
   );
 }
 
-function PrayerRequestCard({ request, t, language, onSupport, onSave, onComment }: { request: PrayerCard; t: typeof copy[Language]; language: Language; onSupport: () => void; onSave: () => void; onComment: () => void }) {
+function PrayerRequestCard({ request, t, language, onSupport, onSave, onComment, onResolve }: { request: PrayerCard; t: typeof copy[Language]; language: Language; onSupport: () => void; onSave: () => void; onComment: () => void; onResolve: () => void }) {
   return <article className="request-card">
     <div className="request-head"><span className={`avatar ${request.anonymous ? "sage" : "amber"}`}>{request.avatar}</span><div><b>{request.author}</b><p><span>{request.city}</span><i>•</i><span>{request.time}</span></p></div><button aria-label="Ko‘proq">•••</button></div>
-    <div className="request-body"><div className="badges"><span className={`category ${request.categoryKey}`}>{categoryLabels[request.categoryKey]?.[language] || request.category}</span>{request.urgent && <span className="urgent">Moderator tekshiruvida</span>}</div><h2>{request.title}</h2><p>{request.body}</p></div>
+    <div className="request-body"><div className="badges"><span className={`category ${request.categoryKey}`}>{categoryLabels[request.categoryKey]?.[language] || request.category}</span>{request.urgent && <span className="urgent">Moderator tekshiruvida</span>}{request.resolved && <span className="resolved-badge">✓ {t.resolvedBadge}</span>}</div><h2>{request.title}</h2><p>{request.body}</p></div>
     <div className="request-stats"><span><b>{request.supportCount}</b> inson duoda esladi</span><span>{request.commentCount} {t.support}</span></div>
-    <div className="request-actions"><button className={request.supported ? "pray active" : "pray"} onClick={onSupport}><span>{request.supported ? "✓" : "☾"}</span>{request.supported ? t.prayed : t.prayer}</button><button className={request.saved ? "save active" : "save"} onClick={onSave}><span>{request.saved ? "♥" : "♡"}</span>{request.saved ? t.saved : t.save}</button><button className="comment" aria-label={t.commentTitle} onClick={onComment}><span>◯</span>{t.commentTitle}</button></div>
+    <div className="request-actions">{request.owned ? request.resolved ? <span className="resolved-state"><b>✓</b>{t.resolvedBadge}</span> : <button className="resolve" onClick={onResolve}><span>✓</span>{t.resolved}</button> : <button className={request.supported ? "pray active" : "pray"} onClick={onSupport}><span>{request.supported ? "✓" : "☾"}</span>{request.supported ? t.prayed : t.prayer}</button>}<button className={request.saved ? "save active" : "save"} onClick={onSave}><span>{request.saved ? "♥" : "♡"}</span>{request.saved ? t.saved : t.save}</button><button className="comment" aria-label={t.commentTitle} onClick={onComment}><span>◯</span>{t.commentTitle}</button></div>
   </article>;
+}
+
+function ResolveDialog({ target, t, onClose, onResolved }: { target: PrayerCard; t: typeof copy[Language]; onClose: () => void; onResolved: () => void }) {
+  const [resolving, setResolving] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => event.key === "Escape" && !resolving && onClose();
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onClose, resolving]);
+
+  async function resolve() {
+    setResolving(true);
+    setError("");
+    try {
+      const response = await fetch(`/api/requests/${target.id}/resolve`, { method: "PATCH" });
+      const result = await response.json() as { resolved?: boolean; error?: string };
+      if (!response.ok || !result.resolved) throw new Error(result.error || "Resolve failed");
+      onResolved();
+    } catch (reason) {
+      setError(reason instanceof Error && /Authentication required/i.test(reason.message) ? "So‘rovni yakunlash uchun ChatGPT hisobingiz bilan kiring." : "So‘rovni yakunlab bo‘lmadi. Birozdan keyin qayta urinib ko‘ring.");
+      setResolving(false);
+    }
+  }
+
+  return <div className="modal-backdrop resolve-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && !resolving && onClose()}><section className="resolve-dialog" role="dialog" aria-modal="true" aria-labelledby="resolve-title"><span className="resolve-icon">✓</span><p className="eyebrow">XUSHXABAR</p><h2 id="resolve-title">{t.resolveTitle}</h2><p>{t.resolveText}</p><div className="resolve-request"><b>{target.title}</b><span>{target.supportCount} inson duoda esladi</span></div>{error && <p className="resolve-error" role="status">{error}</p>}<div className="resolve-actions"><button className="soft-button" onClick={onClose} disabled={resolving}>{t.cancel}</button><button className="primary-button" onClick={() => void resolve()} disabled={resolving}>{resolving ? "…" : t.resolveConfirm}<span>✓</span></button></div></section></div>;
 }
 
 function CommentPanel({ target, t, language, viewerName, initial, onClose, onPublished }: { target: PrayerCard; t: typeof copy[Language]; language: Language; viewerName: string; initial: string; onClose: () => void; onPublished: () => void }) {
@@ -428,9 +462,9 @@ function NotificationsView({ t, language, onUnreadChange }: { t: typeof copy[Lan
       {loading && <div className="notification-empty">{language === "uz" ? "Yuklanmoqda…" : language === "en" ? "Loading…" : "Загрузка…"}</div>}
       {!loading && !error && visibleItems.length === 0 && <div className="notification-empty"><span>♢</span><h3>{t.notificationEmpty}</h3><p>{t.notificationEmptyText}</p></div>}
       {visibleItems.map((notification) => {
-        const icon = notification.type === "prayer_support" ? "☾" : notification.type === "support_comment" ? "♡" : "⌒";
+        const icon = notification.type === "prayer_support" ? "☾" : notification.type === "support_comment" ? "♡" : notification.type === "request_resolved" ? "✓" : "⌒";
         return <article key={notification.id} className={notification.readAt ? "read" : "unread"}>
-          <span className={`round-icon ${notification.type === "support_comment" ? "coral-bg" : notification.type === "mosque_referral" ? "sand-bg" : ""}`}>{icon}</span>
+          <span className={`round-icon ${notification.type === "support_comment" ? "coral-bg" : notification.type === "mosque_referral" ? "sand-bg" : notification.type === "request_resolved" ? "resolved-bg" : ""}`}>{icon}</span>
           <div><div><b>{notification.title}</b>{!notification.readAt && <i aria-label={t.notificationUnread} />}</div><p>{notification.body}</p><time>{new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }).format(new Date(notification.createdAt))}</time></div>
           {!notification.readAt && <button onClick={() => void markRead(notification.id)} aria-label={`${notification.title}: ${t.notificationMarkAll}`}>✓</button>}
         </article>;

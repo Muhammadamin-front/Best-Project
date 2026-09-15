@@ -12,6 +12,7 @@ export type PrayerCard = {
   commentCount: number;
   supported: boolean;
   saved: boolean;
+  owned?: boolean;
   anonymous?: boolean;
   resolved?: boolean;
   urgent?: boolean;

@@ -1,4 +1,4 @@
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, or, sql } from "drizzle-orm";
 import { getDb } from "../../../db";
 import { comments, prayerRequests, prayerSaves, prayerSupports, profiles } from "../../../db/schema";
 import { moderateText, prayerRequestSchema, safePublicAuthor } from "../../../lib/product";
@@ -16,6 +16,7 @@ export async function GET(request: Request) {
     const rows = await db
       .select({
         id: prayerRequests.id,
+        authorId: prayerRequests.authorId,
         title: prayerRequests.title,
         body: prayerRequests.body,
         category: prayerRequests.category,
@@ -23,6 +24,7 @@ export async function GET(request: Request) {
         isAnonymous: prayerRequests.isAnonymous,
         isEmergency: prayerRequests.isEmergency,
         status: prayerRequests.status,
+        resolvedAt: prayerRequests.resolvedAt,
         createdAt: prayerRequests.createdAt,
         displayName: profiles.displayName,
         supportCount: sql<number>`count(${prayerSupports.id})`,
@@ -31,7 +33,12 @@ export async function GET(request: Request) {
       .from(prayerRequests)
       .leftJoin(profiles, eq(prayerRequests.authorId, profiles.id))
       .leftJoin(prayerSupports, eq(prayerRequests.id, prayerSupports.prayerRequestId))
-      .where(eq(prayerRequests.status, "published"))
+      .where(viewerId
+        ? or(
+            eq(prayerRequests.status, "published"),
+            and(eq(prayerRequests.authorId, viewerId), inArray(prayerRequests.status, ["pending_moderation", "resolved"])),
+          )
+        : eq(prayerRequests.status, "published"))
       .groupBy(prayerRequests.id)
       .orderBy(sql`count(${prayerSupports.id}) asc`, desc(prayerRequests.createdAt))
       .limit(30);
@@ -44,10 +51,10 @@ export async function GET(request: Request) {
     const savedIds = new Set(saves.map((item) => item.requestId));
 
     return Response.json({
-      requests: rows.map((row) => ({
+      requests: rows.map(({ authorId, displayName, ...row }) => ({
         ...row,
-        author: safePublicAuthor(row.isAnonymous, row.displayName),
-        displayName: undefined,
+        author: safePublicAuthor(row.isAnonymous, displayName),
+        ownedByViewer: Boolean(viewerId && authorId === viewerId),
         supported: supportedIds.has(row.id),
         saved: savedIds.has(row.id),
       })),
