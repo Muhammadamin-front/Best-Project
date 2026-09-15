@@ -1,11 +1,33 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+
+const savedDuasStorageKey = "duodosh:saved-duas";
+const savedDuasEvent = "duodosh:saved-duas-changed";
+
+function subscribeSavedDuas(callback: () => void) {
+  const notify = () => callback();
+  window.addEventListener(savedDuasEvent, notify);
+  window.addEventListener("storage", notify);
+  return () => {
+    window.removeEventListener(savedDuasEvent, notify);
+    window.removeEventListener("storage", notify);
+  };
+}
+
+function getSavedDuasSnapshot() {
+  return window.localStorage.getItem(savedDuasStorageKey) ?? "[]";
+}
+
+function getSavedDuasServerSnapshot() {
+  return "[]";
+}
 
 const prophetDuas = [
   {
     prophet: "Yunus alayhissalom duosi",
+    category: "Tavba",
     occasion: "Qiyinchilik va tavba paytida",
     arabic: "لَا إِلَٰهَ إِلَّا أَنتَ سُبْحَانَكَ إِنِّي كُنتُ مِنَ الظَّالِمِينَ",
     reading: "La ilaha illa Anta, subhanaka, inni kuntu minaz-zolimin.",
@@ -17,6 +39,7 @@ const prophetDuas = [
   },
   {
     prophet: "Muso alayhissalom duosi",
+    category: "Rizq",
     occasion: "Yaxshilik va rizqqa muhtojlikda",
     arabic: "رَبِّ إِنِّي لِمَا أَنزَلْتَ إِلَيَّ مِنْ خَيْرٍ فَقِيرٌ",
     reading: "Robbi inni lima anzalta ilayya min xoyrin faqir.",
@@ -28,6 +51,7 @@ const prophetDuas = [
   },
   {
     prophet: "Ibrohim alayhissalom duosi",
+    category: "Oila",
     occasion: "Oila va namoz uchun",
     arabic: "رَبِّ اجْعَلْنِي مُقِيمَ الصَّلَاةِ وَمِن ذُرِّيَّتِي رَبَّنَا وَتَقَبَّلْ دُعَاءِ",
     reading: "Robbij’alni muqimas-solati va min zurriyyati, robbana va taqobbal duoi.",
@@ -39,6 +63,7 @@ const prophetDuas = [
   },
   {
     prophet: "Zakariyo alayhissalom duosi",
+    category: "Oila",
     occasion: "Solih zurriyot so‘raganda",
     arabic: "رَبِّ هَبْ لِي مِن لَّدُنكَ ذُرِّيَّةً طَيِّبَةً إِنَّكَ سَمِيعُ الدُّعَاءِ",
     reading: "Robbi hab li min ladunka zurriyyatan toyyibatan, innaka sami’ud-duo.",
@@ -50,6 +75,7 @@ const prophetDuas = [
   },
   {
     prophet: "Odam va Havo alayhimassalom duosi",
+    category: "Tavba",
     occasion: "Tavba va mag‘firat so‘raganda",
     arabic: "رَبَّنَا ظَلَمْنَا أَنفُسَنَا وَإِن لَّمْ تَغْفِرْ لَنَا وَتَرْحَمْنَا لَنَكُونَنَّ مِنَ الْخَاسِرِينَ",
     reading: "Robbana zolamna anfusana va illam tag‘fir lana va tarhamna lanakunanna minal-xosirin.",
@@ -61,6 +87,7 @@ const prophetDuas = [
   },
   {
     prophet: "Ayyub alayhissalom duosi",
+    category: "Shifo",
     occasion: "Kasallik va musibat paytida",
     arabic: "أَنِّي مَسَّنِيَ الضُّرُّ وَأَنتَ أَرْحَمُ الرَّاحِمِينَ",
     reading: "Anni massaniyad-durru va Anta arhamur-rohimin.",
@@ -72,6 +99,7 @@ const prophetDuas = [
   },
   {
     prophet: "Sulaymon alayhissalom duosi",
+    category: "Shukr",
     occasion: "Ne’mat uchun shukr qilganda",
     arabic: "رَبِّ أَوْزِعْنِي أَنْ أَشْكُرَ نِعْمَتَكَ الَّتِي أَنْعَمْتَ عَلَيَّ وَعَلَىٰ وَالِدَيَّ وَأَنْ أَعْمَلَ صَالِحًا تَرْضَاهُ وَأَدْخِلْنِي بِرَحْمَتِكَ فِي عِبَادِكَ الصَّالِحِينَ",
     reading: "Robbi avzi’ni an ashkura ni’matakallati an’amta alayya va ala validayya va an a’mala solihan tarzohu va adxilni birohmatika fi ibadikas-solihin.",
@@ -83,6 +111,7 @@ const prophetDuas = [
   },
   {
     prophet: "Nuh alayhissalom duosi",
+    category: "Oila",
     occasion: "Oila va mo‘minlar uchun",
     arabic: "رَبِّ اغْفِرْ لِي وَلِوَالِدَيَّ وَلِمَن دَخَلَ بَيْتِيَ مُؤْمِنًا وَلِلْمُؤْمِنِينَ وَالْمُؤْمِنَاتِ",
     reading: "Robbig‘fir li va li-validayya va liman daxola baytiya mo‘minan va lil-mo‘minina val-mo‘minat.",
@@ -122,7 +151,7 @@ function TypingHeadline({ text }: { text: string }) {
   </span>;
 }
 
-function ProphetDuaCard({ dua, index, reduceMotion }: { dua: (typeof prophetDuas)[number]; index: number; reduceMotion: boolean }) {
+function ProphetDuaCard({ dua, index, reduceMotion, saved, copied, onToggleSaved, onCopy }: { dua: (typeof prophetDuas)[number]; index: number; reduceMotion: boolean; saved: boolean; copied: boolean; onToggleSaved: () => void; onCopy: () => void }) {
   const [isFlipped, setIsFlipped] = useState(false);
   const frontButton = useRef<HTMLButtonElement>(null);
   const backButton = useRef<HTMLButtonElement>(null);
@@ -154,6 +183,10 @@ function ProphetDuaCard({ dua, index, reduceMotion }: { dua: (typeof prophetDuas
         <p className="transliteration" lang="uz-Latn"><span>O‘qilishi:</span> {dua.reading}</p>
         <p className="dua-meaning"><b>Mazmuni:</b> {dua.meaning}</p>
         <a href={dua.href} target="_blank" rel="noreferrer" tabIndex={isFlipped ? -1 : 0}>{dua.source} ↗</a>
+        <div className="dua-quick-actions">
+          <button type="button" onClick={onToggleSaved} tabIndex={isFlipped ? -1 : 0} aria-pressed={saved}>{saved ? "♥ Saqlandi" : "♡ Saqlash"}</button>
+          <button type="button" onClick={onCopy} tabIndex={isFlipped ? -1 : 0}>{copied ? "✓ Nusxalandi" : "⧉ Nusxalash"}</button>
+        </div>
         <button ref={frontButton} className="dua-flip-button" type="button" onClick={showHistory} tabIndex={isFlipped ? -1 : 0} aria-pressed={isFlipped}><span>Duoning tarixini ko‘rish</span><b aria-hidden="true">↻</b></button>
       </article>
 
@@ -162,6 +195,10 @@ function ProphetDuaCard({ dua, index, reduceMotion }: { dua: (typeof prophetDuas
         <p className="dua-history">{dua.history}</p>
         <div className="dua-lesson"><span>BUGUNGI SABOQ</span><p>{dua.lesson}</p></div>
         <a href={dua.href} target="_blank" rel="noreferrer" tabIndex={isFlipped ? 0 : -1}>Qur’ondagi manbani ochish — {dua.source} ↗</a>
+        <div className="dua-quick-actions">
+          <button type="button" onClick={onToggleSaved} tabIndex={isFlipped ? 0 : -1} aria-pressed={saved}>{saved ? "♥ Saqlandi" : "♡ Saqlash"}</button>
+          <button type="button" onClick={onCopy} tabIndex={isFlipped ? 0 : -1}>{copied ? "✓ Nusxalandi" : "⧉ Nusxalash"}</button>
+        </div>
         <button ref={backButton} className="dua-flip-button back" type="button" onClick={showPrayer} tabIndex={isFlipped ? 0 : -1} aria-pressed={isFlipped}><span>Duoni ko‘rish</span><b aria-hidden="true">↺</b></button>
       </article>
     </div>
@@ -170,6 +207,48 @@ function ProphetDuaCard({ dua, index, reduceMotion }: { dua: (typeof prophetDuas
 
 export default function WelcomeView({ firstName, onEnter }: { firstName: string; onEnter: () => void }) {
   const reduceMotion = useReducedMotion();
+  const [duaQuery, setDuaQuery] = useState("");
+  const [duaCategory, setDuaCategory] = useState("Barchasi");
+  const [showSavedOnly, setShowSavedOnly] = useState(false);
+  const [copiedSource, setCopiedSource] = useState<string | null>(null);
+  const copyTimer = useRef<number | null>(null);
+  const savedDuasSnapshot = useSyncExternalStore(subscribeSavedDuas, getSavedDuasSnapshot, getSavedDuasServerSnapshot);
+  const savedDuas = useMemo(() => {
+    try {
+      return new Set<string>(JSON.parse(savedDuasSnapshot));
+    } catch {
+      return new Set<string>();
+    }
+  }, [savedDuasSnapshot]);
+  const categories = useMemo(() => ["Barchasi", ...new Set(prophetDuas.map((dua) => dua.category))], []);
+  const visibleDuas = useMemo(() => {
+    const query = duaQuery.trim().toLocaleLowerCase("uz");
+    return prophetDuas.filter((dua) => {
+      const matchesCategory = duaCategory === "Barchasi" || dua.category === duaCategory;
+      const matchesSaved = !showSavedOnly || savedDuas.has(dua.source);
+      const searchable = `${dua.prophet} ${dua.occasion} ${dua.reading} ${dua.meaning} ${dua.category}`.toLocaleLowerCase("uz");
+      return matchesCategory && matchesSaved && (!query || searchable.includes(query));
+    });
+  }, [duaCategory, duaQuery, savedDuas, showSavedOnly]);
+
+  useEffect(() => () => {
+    if (copyTimer.current) window.clearTimeout(copyTimer.current);
+  }, []);
+
+  function toggleSavedDua(source: string) {
+    const next = new Set(savedDuas);
+    if (next.has(source)) next.delete(source);
+    else next.add(source);
+    window.localStorage.setItem(savedDuasStorageKey, JSON.stringify([...next]));
+    window.dispatchEvent(new Event(savedDuasEvent));
+  }
+
+  async function copyDua(dua: (typeof prophetDuas)[number]) {
+    await navigator.clipboard.writeText(`${dua.arabic}\n${dua.reading}\n\n${dua.meaning}\n${dua.source}`);
+    setCopiedSource(dua.source);
+    if (copyTimer.current) window.clearTimeout(copyTimer.current);
+    copyTimer.current = window.setTimeout(() => setCopiedSource(null), 1800);
+  }
 
   return <div className="welcome-view">
     <section className="welcome-hero">
@@ -210,7 +289,15 @@ export default function WelcomeView({ firstName, onEnter }: { firstName: string;
 
     <section className="prophet-section" aria-labelledby="prophet-title">
       <div className="section-heading"><p className="eyebrow">QUR’ONDAGI MASHHUR DUOLAR</p><h2 id="prophet-title">Payg‘ambarlar qilgan duolardan o‘rganamiz</h2><p>Tarjimalar oyat mazmunini qisqa tushuntirish uchun berildi. Asl oyatni havola orqali o‘qishingiz mumkin.</p></div>
-      <div className="dua-library">{prophetDuas.map((dua, index) => <ProphetDuaCard key={dua.source} dua={dua} index={index} reduceMotion={Boolean(reduceMotion)} />)}</div>
+      <div className="dua-tools">
+        <label><span aria-hidden="true">⌕</span><input value={duaQuery} onChange={(event) => setDuaQuery(event.target.value)} placeholder="Duo, mavzu yoki payg‘ambar nomini qidiring" aria-label="Duolarni qidirish" /></label>
+        <button className={showSavedOnly ? "dua-saved-filter active" : "dua-saved-filter"} type="button" onClick={() => setShowSavedOnly((current) => !current)} aria-pressed={showSavedOnly}>♥ Saqlanganlar <span>{savedDuas.size}</span></button>
+      </div>
+      <div className="dua-categories" aria-label="Duo mavzulari">{categories.map((category) => <button className={duaCategory === category ? "active" : ""} type="button" key={category} onClick={() => setDuaCategory(category)} aria-pressed={duaCategory === category}>{category}</button>)}</div>
+      <p className="dua-results" aria-live="polite">{visibleDuas.length} ta duo ko‘rsatildi</p>
+      {visibleDuas.length > 0
+        ? <div className="dua-library">{visibleDuas.map((dua, index) => <ProphetDuaCard key={dua.source} dua={dua} index={index} reduceMotion={Boolean(reduceMotion)} saved={savedDuas.has(dua.source)} copied={copiedSource === dua.source} onToggleSaved={() => toggleSavedDua(dua.source)} onCopy={() => void copyDua(dua)} />)}</div>
+        : <div className="dua-empty"><span>☾</span><h3>Duo topilmadi</h3><p>Qidiruv so‘zini yoki tanlangan mavzuni o‘zgartirib ko‘ring.</p><button type="button" onClick={() => { setDuaQuery(""); setDuaCategory("Barchasi"); setShowSavedOnly(false); }}>Barcha duolarni ko‘rsatish</button></div>}
     </section>
 
     <section className="welcome-cta"><span>♡</span><div><p className="eyebrow">DUODA BIRGAMIZ</p><h2>Bugun bir insonni duoda eslang.</h2><p>Mehr kichik bir niyatdan boshlanadi.</p></div><button className="primary-button" onClick={onEnter}>Duo oqimini ochish <span>→</span></button></section>

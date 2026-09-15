@@ -56,6 +56,11 @@ test("opens with a guided faith-based welcome and top navigation", async () => {
   assert.match(welcome, /function TypingHeadline/);
   assert.match(welcome, /function ProphetDuaCard/);
   assert.match(welcome, /useReducedMotion/);
+  assert.match(welcome, /useSyncExternalStore/);
+  assert.match(welcome, /duodosh:saved-duas/);
+  assert.match(welcome, /Duolarni qidirish/);
+  assert.match(welcome, /Saqlanganlar/);
+  assert.match(welcome, /Nusxalash/);
   assert.match(welcome, /<motion\.div/);
   assert.match(welcome, /aria-pressed=\{isFlipped\}/);
   assert.equal((welcome.match(/reading:/g) || []).length, 8);
@@ -68,6 +73,9 @@ test("opens with a guided faith-based welcome and top navigation", async () => {
   assert.match(css, /@keyframes typing-blink/);
   assert.match(css, /@keyframes card-rise/);
   assert.match(css, /\.dua-flip-card/);
+  assert.match(css, /\.dua-tools/);
+  assert.match(css, /\.dua-categories/);
+  assert.match(css, /\.dua-quick-actions/);
   assert.match(css, /perspective: 1800px/);
   assert.match(css, /transform-style: preserve-3d/);
   assert.match(css, /rotateY\(180deg\)/);
